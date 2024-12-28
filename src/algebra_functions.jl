@@ -1,5 +1,5 @@
 """
-    convolve(a, b) or a *b
+    convolve(a, b) or a * b
 
 Compute direct convolution of two vectors `a` and `b`.
 
