@@ -1,7 +1,7 @@
 """
     convolve(a::Vector{T}, b::Vector{T}) where T
 
-Compute direct convolution of two vectors `a` and `b`.
+Compute direct convolution of vectors `a` and `b`.
 
 # Examples
 ```julia-repl
@@ -12,9 +12,10 @@ julia> a = [1, 2]; b = [1, 1]; convolve(a, b)
  2
 ```
 """
-function convolve(a::Vector{T}, b::Vector{T}) where T<:Number
+function convolve(a::Vector{Ta}, b::Vector{Tb}) where {Ta<:Number, Tb<:Number}
     n = length(a)
     m = length(b)
+    T = promote_type(Ta, Tb)
     c = zeros(T, n + m - 1)
     for i in 1:n
         for j in 1:m
@@ -27,7 +28,7 @@ end
 Base.:*(a::Vector{<:Number}, b::Vector{<:Number}) = convolve(a, b) # infix version of convolve
 
 """
-    convolution_power(a::Vector{T}, n::Integer) where T<:Number
+    convolution_power(a::Vector{<:Number}, n::Integer)
 
 Compute convolution `n`-th power of vector `a`.
 
@@ -44,7 +45,7 @@ julia> a = [1, 2, 3]; convolution_power(a, 3)
  27
 ```
 """
-function convolution_power(a::Vector{T}, n::Integer) where T<:Number
+function convolution_power(a::Vector{<:Number}, n::Integer)
     if n == 0
         return a[1] * 0 + 1
     elseif n == 1
@@ -63,11 +64,10 @@ Transform vector `a` to a Toeplitz matrix.
 
 # Examples
 ```julia-repl
-julia> a = [1, 2, 3, 4, 5]; toeplitz(a)
+julia> a = [1, 2, 3]; toeplitz(a)
 3×3 Matrix{Int64}:
- 3  2  1
- 4  3  2
- 5  4  3
+ 2  1
+ 3  2
 ```
 """
 function toeplitz(a::Vector{T}) where T<:Number

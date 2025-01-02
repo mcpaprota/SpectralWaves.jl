@@ -5,7 +5,7 @@ using LinearAlgebra, ProgressMeter
 include("algebra_functions.jl")
 include("constants.jl")
 
-export convolve, toeplitz
-# Write your package code here.
+# inner functions exported only for testing for now
+export convolve, toeplitz, convolution_power
 
 end
