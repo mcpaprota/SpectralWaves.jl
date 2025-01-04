@@ -55,7 +55,8 @@ function convolution_power(a::Vector{<:Number}, n::Integer)
     end
 end
 
-Base.:^(a::Vector{<:Number}, n::Integer) = convolution_power(a, n) # infix version of convolution n-th power
+# infix version of convolution n-th power
+Base.:^(a::Vector{<:Number}, n::Integer) = convolution_power(a, n)
 
 """
     toeplitz(a::Vector{T}) where T
@@ -71,7 +72,7 @@ julia> a = [1, 2, 3]; toeplitz(a)
 ```
 """
 function toeplitz(a::Vector{T}) where T<:Number
-    n = Int((length(a) - 1) ÷ 2)
+    n = (length(a) - 1) ÷ 2
     B = zeros(T, n+1, n+1)
     for i in 0:n, j in 0:n
         B[i+1, j+1] = a[i-j+n+1]
