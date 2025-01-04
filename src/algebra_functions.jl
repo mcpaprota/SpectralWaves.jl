@@ -1,5 +1,5 @@
 """
-    convolve(a::Vector{T}, b::Vector{T}) where T
+    convolve(a::Vector{Ta}, b::Vector{Tb}) where {Ta<:Number, Tb<:Number}
 
 Compute direct convolution of vectors `a` and `b`.
 
@@ -77,4 +77,36 @@ function toeplitz(a::Vector{T}) where T<:Number
         B[i+1, j+1] = a[i-j+n+1]
     end
     return B
+end
+
+"""
+    relative_error(a::Vector{<:Number}, b::Vector{<:Number})
+
+Compute relative error between vectors `a` and `b`.
+
+# Examples
+```julia-repl
+julia> a = [2, 2]; b = [1, 1]; relative_error(a, b)
+0.5
+```
+"""
+function relative_error(a::Vector{<:Number}, b::Vector{<:Number})
+    δ = norm(a - b) / norm(a)
+    return δ
+end
+
+"""
+    absolute_error(a::Vector{<:Number}, b::Vector{<:Number})
+
+Compute absolute error between vectors `a` and `b`.
+
+# Examples
+```julia-repl
+julia> a = [1, 2]; b = [1, 1]; absolute_error(a, b)
+1.0
+```
+"""
+function absolute_error(a::Vector{<:Number}, b::Vector{<:Number})
+    ϵ = norm(a - b)
+    return ϵ
 end

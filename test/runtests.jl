@@ -14,4 +14,8 @@ using Test
     @test [1, 2] ^ 1 == [1, 2]
     # toeplitz function test
     @test SpectralWaves.toeplitz([1, 2, 3]) == [2 1; 3 2]
+    # relative_error function test
+    @test SpectralWaves.relative_error([2, 2], [1, 1]) == 0.5
+    # absolute_error function test
+    @test SpectralWaves.absolute_error([1, 2], [1, 1]) == 1.0
 end
