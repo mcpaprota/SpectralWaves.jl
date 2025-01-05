@@ -7,5 +7,5 @@ include("constants.jl")
 
 # inner functions exported only for testing for now
 export convolve, toeplitz, convolution_power, relative_error, absolute_error
-
+export convolution_range
 end

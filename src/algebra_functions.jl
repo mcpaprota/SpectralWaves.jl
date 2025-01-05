@@ -59,6 +59,25 @@ end
 Base.:^(a::Vector{<:Number}, n::Integer) = convolution_power(a, n)
 
 """
+    convolution_range(m::Integral, M::Integral, n::Integer)
+
+Compute range of indices of a central part of convolution vector corresponding to
+'m'-th order of convolution, where `M` is the maximum order of convolution and `n` is
+the number of harmonics.
+
+# Examples
+```julia-repl
+julia> m = 1; M = 3; n = 5; c_range = convolution_range(m, M, n)
+11:31
+```
+"""
+function convolution_range(m::Integer, M::Integer, n::Integer)
+    N = (M + 1) * 2n + 1
+    r = (N+1)÷2-(m+1)*n:(N+1)÷2+(m+1)*n
+    return r
+end
+
+"""
     toeplitz(a::Vector{T}) where T
 
 Transform vector `a` to a Toeplitz matrix.
