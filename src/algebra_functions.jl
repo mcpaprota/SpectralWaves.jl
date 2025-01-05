@@ -130,3 +130,57 @@ function absolute_error(a::Vector{<:Number}, b::Vector{<:Number})
     ϵ = norm(a - b)
     return ϵ
 end
+
+
+"""
+    factorial_lookup(n::Integer)
+
+Compute lookup table for factorials of numbers from 0 to `n`.
+
+# Examples
+```julia-repl
+julia> factorial_lookup(3)
+4-element Vector{Float64}:
+  1.0
+  1.0
+  2.0
+  6.0
+```
+"""
+function factorial_lookup(n::Integer)
+    F = convert(Vector{Float64}, factorial.(big.(0:n)))
+    return F
+end
+
+"""
+    inverse_fourier_transform(f̂::Vector{<:Number}, ω::UnitRange{<:Number}, x::Number)
+
+Compute `f(x)` using expansion amplitudes `f̂` and eigenvalues `ω`.
+
+# Examples
+```julia-repl
+julia> f̂ = [0.5, 0, 0.5]; ω = -1:1; x = π; inverse_fourier_transform(f̂, ω, x)
+-1.0
+```
+"""
+function inverse_fourier_transform(f̂::Vector{<:Number}, ω::UnitRange{<:Number}, x::Number)
+    f = real(sum(f̂ .* exp.(im * ω * x)))
+    return f
+end
+
+"""
+    fourier_transform(f::Vector{<:Number}, ω::Number, x::UnitRange{<:Number})
+
+Compute `f̂(ω)` using `f(x)`.
+
+# Examples
+```julia-repl
+julia> f = [0, 1, 0]; ω = 0; x = 0:2; fourier_transform(f, ω, x)
+0.5 + 0.0im
+```
+"""
+function fourier_transform(f::Vector{<:Number}, ω::Number, x::UnitRange{<:Number})
+    f[1, end] = f[1, end] / 2
+    f̂ = sum(f .* exp.(-im * ω * x)) / (length(x) - 1)
+    return f̂
+end
