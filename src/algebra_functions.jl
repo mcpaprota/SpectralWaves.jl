@@ -61,20 +61,22 @@ Base.:^(a::Vector{<:Number}, n::Integer) = convolution_power(a, n)
 """
     convolution_range(m::Integral, M::Integral, n::Integer)
 
-Compute range of indices of a central part of convolution vector corresponding to
-'m'-th order of convolution, where `M` is the maximum order of convolution and `n` is
-the number of harmonics.
+Compute range `r` of indices of a central part of convolution vector
+corresponding to the `m`-th order of convolution,
+where `M` is the maximum order of convolution,
+`N` is the length of convolution vector corresponding to the `M`-th order of convolution,
+and `ℐ` is the number of harmonics.
 
 # Examples
 ```julia-repl
-julia> m = 1; M = 3; n = 5; c_range = convolution_range(m, M, n)
+julia> m = 1; M = 3; ℐ = 5; c_range = convolution_range(m, M, ℐ)
 11:31
 ```
 """
-function convolution_range(m::Integer, M::Integer, n::Integer)
-    N = (M + 1) * 2n + 1
-    r = (N+1)÷2-(m+1)*n:(N+1)÷2+(m+1)*n
-    return r
+function convolution_range(m::Integer, M::Integer, ℐ::Integer)
+    N = (M + 1) * 2ℐ + 1
+    r = (N+1)÷2-(m+1)*ℐ:(N+1)÷2+(m+1)*ℐ
+    return N, r
 end
 
 """
@@ -153,7 +155,7 @@ function factorial_lookup(n::Integer)
 end
 
 """
-    inverse_fourier_transform(f̂::Vector{<:Number}, ω::UnitRange{<:Number}, x::Number)
+    inverse_fourier_transform(f̂::Vector{<:Number}, ω::AbstractRange{<:Number}, x::Number)
 
 Compute `f(x)` using expansion amplitudes `f̂` and eigenvalues `ω`.
 
@@ -163,13 +165,13 @@ julia> f̂ = [0.5, 0, 0.5]; ω = -1:1; x = π; inverse_fourier_transform(f̂, ω
 -1.0
 ```
 """
-function inverse_fourier_transform(f̂::Vector{<:Number}, ω::UnitRange{<:Number}, x::Number)
+function inverse_fourier_transform(f̂::Vector{<:Number}, ω::AbstractRange{<:Number}, x::Number)
     f = real(sum(f̂ .* exp.(im * ω * x)))
     return f
 end
 
 """
-    fourier_transform(f::Vector{<:Number}, ω::Number, x::UnitRange{<:Number})
+    fourier_transform(f::Vector{<:Number}, ω::Number, x::AbstractRange{<:Number})
 
 Compute `f̂(ω)` using `f(x)`.
 
@@ -179,8 +181,8 @@ julia> f = [0, 1, 0]; ω = 0; x = 0:2; fourier_transform(f, ω, x)
 0.5 + 0.0im
 ```
 """
-function fourier_transform(f::Vector{<:Number}, ω::Number, x::UnitRange{<:Number})
-    f[1, end] = f[1, end] / 2
-    f̂ = sum(f .* exp.(-im * ω * x)) / (length(x) - 1)
+function fourier_transform(f::Vector{<:Number}, ω::Number, x::AbstractRange{<:Number})
+    f[[1, end]] = f[[1, end]] / 2
+    f̂ = sum(f .* exp.(-im * ω * x)) * (x[2] - x[1]) / (x[end] - x[1])
     return f̂
 end

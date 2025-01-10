@@ -18,4 +18,12 @@ using Test
     @test SpectralWaves.relative_error([2, 2], [1, 1]) == 0.5
     # absolute_error function test
     @test SpectralWaves.absolute_error([1, 2], [1, 1]) == 1.0
+    # convolution_range function test
+    @test SpectralWaves.convolution_range(1, 3, 5) == (41, 11:31)
+    # factorial_lookup function test
+    @test SpectralWaves.factorial_lookup(3) == [1.0, 1.0, 2.0, 6.0]
+    # inverse_fourier_transform function test
+    @test SpectralWaves.inverse_fourier_transform([0.5, 0, 0.5], -1:1, π) == -1
+    # fourier_transform function test
+    @test SpectralWaves.fourier_transform([0, 1, 0], 0, 0:2) == 0.5 + 0.0im
 end
