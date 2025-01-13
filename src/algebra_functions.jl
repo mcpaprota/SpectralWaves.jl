@@ -177,12 +177,14 @@ Compute `f̂(ω)` using `f(x)`.
 
 # Examples
 ```julia-repl
-julia> f = [0, 1, 0]; ω = 0; x = 0:2; fourier_transform(f, ω, x)
+julia> f = [-1, 0, 1, 0, -1]; ω = 1; x = range(-π, π, length = 5);
+julia> fourier_transform(f, ω, x)
 0.5 + 0.0im
 ```
 """
-function fourier_transform(f::Vector{<:Number}, ω::Number, x::AbstractRange{<:Number})
-    f[[1, end]] = f[[1, end]] / 2
-    f̂ = sum(f .* exp.(-im * ω * x)) * (x[2] - x[1]) / (x[end] - x[1])
+function fourier_transform(f::Vector{<:Real}, ω::Number, x::AbstractRange{<:Number})
+    k = ones(Integer, length(f))
+    k[[1, end]] = [2, 2]
+    f̂ = sum(f ./ k .* exp.(-im * ω * x)) * (x[2] - x[1]) / (x[end] - x[1])
     return f̂
 end
