@@ -39,6 +39,25 @@ function init_problem(ℓ::Number, d::Number, ℐ::Integer, N::Integer)
     return κ, η̂, η̇, β̂, β̇, ϕ̂, ϕ̇, ψ̂, ψ̇, p̂, χ, ξ, ζ, 𝒯, 𝒮
 end
 
+"""
+    init_nonlinear_surface_problem(κ, 𝒯, 𝒮, ℐ, M)
+
+Initialize expansion coefficients for nonlinear free-surface boundary conditions
+for eigenvalues `κ`, hyperbolic tangent `𝒯` and secant `𝒮` values,
+number of harmonics `ℐ` and order of nonlinear expansion `M`.
+
+Output is a tuple `(Φ̇′, Φ̇″, Φ̂′, Φ̂″, Φ̃′, Φ̃″)`, where:
+- `Φ̇′` are surface-potential-amplitude dependent expansion coefficients and
+- `Φ̇″` are bottom-potential-amplitude dependent expansion coefficients for computing
+surface acceleration potential amplitudes and its vertical gradients,
+- `Φ̂′` are surface-potential-amplitude dependent expansion coefficients and
+- `Φ̂″` are bottom-potential-amplitude dependent expansion coefficients for computing
+surface velocity potential amplitudes and its vertical gradients,
+- `Φ̃′` are surface-potential-amplitude dependent expansion coefficients and
+- `Φ̃″` are bottom-potential-amplitude dependent expansion coefficients for computing
+surface horizontal velocity potential amplitudes and its vertical gradients.
+
+"""
 function init_nonlinear_surface_problem(κ, 𝒯, 𝒮, ℐ, M)
     Φ̇′ = zeros(2ℐ + 1, M + 1)
     Φ̇″ = zeros(2ℐ + 1, M + 1)
@@ -57,6 +76,22 @@ function init_nonlinear_surface_problem(κ, 𝒯, 𝒮, ℐ, M)
     return Φ̇′, Φ̇″, Φ̂′, Φ̂″, Φ̃′, Φ̃″
 end
 
+"""
+    init_nonlinear_bottom_problem(κ, 𝒯, 𝒮, ℐ, M)
+
+Initialize expansion coefficients for nonlinear bottom boundary conditions
+for eigenvalues `κ`, hyperbolic tangent `𝒯` and secant `𝒮` values,
+number of harmonics `ℐ` and order of nonlinear expansion `M`.
+
+Output is a tuple `(Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″)`, where:
+- `Ψ̂′` are surface-potential-amplitude dependent expansion coefficients and
+- `Ψ̂″` are bottom-potential-amplitude dependent expansion coefficients for computing
+bottom velocity potential amplitudes and its vertical gradients,
+- `Ψ̃′` are surface-potential-amplitude dependent expansion coefficients and
+- `Ψ̃″` are bottom-potential-amplitude dependent expansion coefficients for computing
+bottom horizontal velocity potential amplitudes and its vertical gradients.
+
+"""
 function init_nonlinear_bottom_problem(κ, 𝒯, 𝒮, ℐ, M)
     Ψ̂′ = zeros(2ℐ + 1, M + 1)
     Ψ̂″ = zeros(2ℐ + 1, M + 1)
