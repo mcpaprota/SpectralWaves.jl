@@ -25,5 +25,5 @@ using Test
     # inverse_fourier_transform function test
     @test SpectralWaves.inverse_fourier_transform([0.5, 0, 0.5], -1:1, π) == -1
     # fourier_transform function test
-    @test SpectralWaves.fourier_transform([0, 1, 0], 0, 0:2) == 0.5 + 0.0im
+    @test SpectralWaves.fourier_transform([-1, 0, 1, 0, -1], 1, range(-π, π, length = 5)) == 0.5 + 0.0im
 end

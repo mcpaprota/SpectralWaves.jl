@@ -173,7 +173,7 @@ end
 """
     fourier_transform(f::Vector{<:Number}, ω::Number, x::AbstractRange{<:Number})
 
-Compute `f̂(ω)` using `f(x)`.
+Compute `f̂(ω)` using function values `f` at points `x`.
 
 # Examples
 ```julia-repl
