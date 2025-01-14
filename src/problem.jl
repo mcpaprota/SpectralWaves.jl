@@ -40,7 +40,7 @@ function init_problem(ℓ::Number, d::Number, ℐ::Integer, N::Integer)
 end
 
 """
-    init_nonlinear_surface_problem(κ, 𝒯, 𝒮, ℐ, M)
+    init_nonlinear_surface_boundary_condition(κ, 𝒯, 𝒮, ℐ, M)
 
 Initialize expansion coefficients for nonlinear free-surface boundary conditions
 for eigenvalues `κ`, hyperbolic tangent `𝒯` and secant `𝒮` values,
@@ -58,7 +58,7 @@ surface velocity potential amplitudes and its vertical gradients,
 surface horizontal velocity potential amplitudes and its vertical gradients.
 
 """
-function init_nonlinear_surface_problem(κ, 𝒯, 𝒮, ℐ, M)
+function init_nonlinear_surface_boundary_condition(κ, 𝒯, 𝒮, ℐ, M)
     Φ̇′ = zeros(2ℐ + 1, M + 1)
     Φ̇″ = zeros(2ℐ + 1, M + 1)
     Φ̂′ = zeros(2ℐ + 1, M + 1)
@@ -66,18 +66,18 @@ function init_nonlinear_surface_problem(κ, 𝒯, 𝒮, ℐ, M)
     Φ̃′ = complex(zeros(2ℐ + 1, M + 1))
     Φ̃″ = complex(zeros(2ℐ + 1, M + 1))
     for m in 0:M
-        Φ̇′[:, m + 1] = iseven(m) ? zero(κ) : κ .^ (m - 1) .* 𝒮
-        Φ̇″[:, m + 1] = iseven(m) ? κ .^ m : κ .^ m .* 𝒯
-        Φ̂′[:, m + 1] = iseven(m) ? κ .^ m .* 𝒮 : zero(κ)
-        Φ̂″[:, m + 1] = iseven(m) ? κ .^ (m + 1) .* 𝒯 : κ .^ (m + 1)
-        Φ̃′[:, m + 1] = (iseven(m) ? zero(κ) : κ .^ m .* S) * im
-        Φ̃″[:, m + 1] = (iseven(m) ? κ .^ (m + 1) : κ .^ (m + 1) .* 𝒯) * im
+        Φ̇′[:, m + 1] = iseven(m) ? κ .^ m : κ .^ m .* 𝒯
+        Φ̇″[:, m + 1] = iseven(m) ? zero(κ) : κ .^ (m - 1) .* 𝒮
+        Φ̂′[:, m + 1] = iseven(m) ? κ .^ (m + 1) .* 𝒯 : κ .^ (m + 1)
+        Φ̂″[:, m + 1] = iseven(m) ? κ .^ m .* 𝒮 : zero(κ)
+        Φ̃′[:, m + 1] = (iseven(m) ? κ .^ (m + 1) : κ .^ (m + 1) .* 𝒯) * im
+        Φ̃″[:, m + 1] = (iseven(m) ? zero(κ) : κ .^ m .* S) * im
     end
     return Φ̇′, Φ̇″, Φ̂′, Φ̂″, Φ̃′, Φ̃″
 end
 
 """
-    init_nonlinear_bottom_problem(κ, 𝒯, 𝒮, ℐ, M)
+    init_nonlinear_bottom_boundary_condition(κ, 𝒯, 𝒮, ℐ, M)
 
 Initialize expansion coefficients for nonlinear bottom boundary conditions
 for eigenvalues `κ`, hyperbolic tangent `𝒯` and secant `𝒮` values,
@@ -92,16 +92,18 @@ bottom velocity potential amplitudes and its vertical gradients,
 bottom horizontal velocity potential amplitudes and its vertical gradients.
 
 """
-function init_nonlinear_bottom_problem(κ, 𝒯, 𝒮, ℐ, M)
+function init_nonlinear_bottom_boundary_condition(κ, 𝒯, 𝒮, ℐ, M)
     Ψ̂′ = zeros(2ℐ + 1, M + 1)
     Ψ̂″ = zeros(2ℐ + 1, M + 1)
     Ψ̃′ = complex(zeros(2ℐ + 1, M + 1))
     Ψ̃″ = complex(zeros(2ℐ + 1, M + 1))
+    A′ = zeros(2ℐ + 1, 2ℐ + 1)
+    A″ = zeros(2ℐ + 1, 2ℐ + 1)
     for m in 0:M
-        Ψ̂′[:, m + 1] = iseven(m) ? κ .^ m : -(κ .^ m) .* 𝒯
-        Ψ̂″[:, m + 1] = iseven(m) ? zero(κ) : κ .^ (m + 1) .* 𝒮
-        Ψ̃′[:, m + 1] = (iseven(m) ? -(κ .^ m) .* 𝒯 : κ .^ m) * im
-        Ψ̃″[:, m + 1] = (iseven(m) ? κ .^ (m + 1) .* 𝒮 : zero(κ)) * im
+        Ψ̂′[:, m + 1] = iseven(m) ? zero(κ) : κ .^ (m + 1) .* 𝒮
+        Ψ̂″[:, m + 1] = iseven(m) ? κ .^ m : -(κ .^ m) .* 𝒯
+        Ψ̃′[:, m + 1] = (iseven(m) ? κ .^ (m + 1) .* 𝒮 : zero(κ)) * im
+        Ψ̃″[:, m + 1] = (iseven(m) ? -(κ .^ m) .* 𝒯 : κ .^ m) * im
     end
-    return Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″
+    return Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, A′, A″
 end
