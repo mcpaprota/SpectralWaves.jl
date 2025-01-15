@@ -1,12 +1,12 @@
 
 """
-    update_bbc_sle!(A′, A″, β̃, β̂, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, κ, ℐ, F, M)
+    update_bbc_sle!(A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, β̃, β̂, κ, ℐ, F, M)
 
 Compute coefficients `A′`, `A″`, and `β̃` for the bottom boundary condition
 system of linear equations.
 
 """
-function update_bbc_sle!(A′, A″, β̃, β̂, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, κ, ℐ, F, M)
+function update_bbc_sle!(A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, β̃, β̂, κ, ℐ, F, M)
     N, _ = convolution_range(0, M, ℐ)
     a = complex(zeros(N))
     A′[:] = zeros(2ℐ + 1, 2ℐ + 1)
@@ -22,6 +22,7 @@ function update_bbc_sle!(A′, A″, β̃, β̂, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃
         A′[:] = @. A′ + B̃ * transpose(Ψ̃′[:, m+1]) - B̂ * transpose(Ψ̂′[:, m+2]) # SLE constant coefficient matrix
         A″[:] = @. A″ - B̃ * transpose(Ψ̃″[:, m+1]) + B̂ * transpose(Ψ̂″[:, m+2]) # SLE coefficient matrix
     end
+    return nothing
 end
 
 """
@@ -30,7 +31,7 @@ end
 Calculate nonlinear correction `δη̇` to kinematic free-surface boundary condition.
 
 """
-function δη̇(η̂, ϕ̂, ψ̂, Φ̂′, Φ̂″, Φ̃′, Φ̃″, κ, κ′, ℐ, F, M, ξ, ℓ)
+function nonlinear_kfsbc_correction(η̂, ϕ̂, ψ̂, Φ̂′, Φ̂″, Φ̃′, Φ̃″, κ, κ′, ℐ, F, M, ξ, ℓ)
     N, r0 = convolution_range(0, M, ℐ)
     δη̇ = complex(zeros(N))
     η̃ = im * κ .* η̂
@@ -46,16 +47,16 @@ function δη̇(η̂, ϕ̂, ψ̂, Φ̂′, Φ̂″, Φ̃′, Φ̃″, κ, κ′,
 end
 
 """
-    nonlinear_dfsbc_correction(η̂, ϕ̂, ψ̂, Φ̂′, Φ̂″, Φ̃′, Φ̃″, κ′, ℐ, F, M, ξ, ζ, ℓ, d)
+    nonlinear_dfsbc_correction(η̂, ϕ̂, ψ̂, ϕ̇, Φ̇′, Φ̇″, Φ̂′, Φ̂″, Φ̃′, Φ̃″, κ′, ℐ, F, M, ξ, ζ, ℓ, d)
 
 Calculate nonlinear correction `δϕ̇` to dynamic free-surface boundary condition.
 
 """
-function δϕ̇(η̂, ϕ̂, ψ̂, Φ̂′, Φ̂″, Φ̃′, Φ̃″, κ′, ℐ, F, M, ξ, ζ, ℓ, d)
+function nonlinear_dfsbc_correction(η̂, ϕ̂, ψ̂, ϕ̇, Φ̇′, Φ̇″, Φ̂′, Φ̂″, Φ̃′, Φ̃″, κ′, ℐ, F, M, ξ, ζ, ℓ, d)
     N, r0 = convolution_range(0, M, ℐ)
     δϕ̇ = complex(zeros(N))
-    Φ̇ = Φ̇′ .* ϕ̃ + Φ̇″ .* ψ̃
-    Φ̃ = Φ̃′ .* ϕ̃ + Φ̃″ .* ψ̃
+    Φ̇ = Φ̇′ .* ϕ̇ + Φ̇″ .* ψ̇
+    Φ̃ = Φ̃′ .* ϕ̂ + Φ̃″ .* ψ̂
     Φ̂ = Φ̂′ .* ϕ̂ + Φ̂″ .* ψ̂
     Φ̇[ℐ+1, 2] += 2ζ * d / ℓ
     Φ̃[:, 1] -= 2im * ξ / ℓ * κ′
@@ -72,4 +73,94 @@ function δϕ̇(η̂, ϕ̂, ψ̂, Φ̂′, Φ̂″, Φ̃′, Φ̃″, κ′, ℐ
         δϕ̇[r] += η̂ ^ m / F[m+1] * (η̂ * Φ̇[:, m+2] / (m + 1) + Φ²)
     end
     return δϕ̇[r0]
+end
+
+"""
+    time_integration_coeffs(O)
+
+Calculate Adams-Bashforth-Moulton time-stepping scheme coefficients for a given order `O`.
+
+Output is a tuple of two vectors with Adams-Bashforth and Adams-Moulton coefficients,
+respectively.
+
+"""
+function time_integration_coeffs(O)
+    O == 1 && return [1.0], [1.0]
+    O == 2 && return [3, -1] / 2, [1, 1] / 2
+    O == 3 && return [23, -16, 5] / 12, [5, 8, -1] / 12
+    return [55, -59, 37, -9] / 24, [9, 19, -5, 1] / 24
+end
+
+function solve_problem!(η̂, η̇, ϕ̂, ϕ̇, ψ̂, ψ̇, β̂, β̇, p̂, κ, 𝒯, 𝒮, ℐ, M_s, M_b, Δt, O, N, χ, ξ, ζ, ℓ, d; static_bottom=true)
+    # initialize auxiliary variables
+    N += O
+    c_ab, c_am = time_integration_coeffs(O)
+    F = factorial_lookup(max(M_s, M_b))
+    @. κ′ =  1 / κ * (κ ≠ 0)
+    @. κ″ =  1 / κ^2 * (κ ≠ 0)
+    # initialize nonlinear bottom boundary condition if necessary
+    if M_b > 0
+        Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, A′, A″ = init_nonlinear_bottom_boundary_condition(κ, 𝒯, 𝒮, ℐ, M_b)
+        if static_bottom
+            update_bbc_sle!(A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, β̃, β̂[:, O], κ, ℐ, F, M_b)
+            A″ = factorize(A″)
+            w′ = (2im * κ′ * β̃ + β̂ ^ 2)
+        end
+    end
+    # initialize nonlinear free-surface boundary conditions if necessary
+    if M_s > 0
+        Φ̇′, Φ̇″, Φ̂′, Φ̂″, Φ̃′, Φ̃″ = init_nonlinear_surface_boundary_condition(κ, 𝒯, 𝒮, ℐ, M_s)
+        # define short calls to nonlinear correction functions
+        δη̇(n) = nonlinear_kfsbc_correction(η̂[:, n], ϕ̂[:, n], ψ̂[:, n], Φ̂′, Φ̂″, Φ̃′, Φ̃″, κ, κ′, ℐ, F, M, ξ[n], ℓ)
+        δϕ̇(n) = nonlinear_dfsbc_correction(η̂[:, n], ϕ̂[:, n], ϕ̇[:, n], ψ̂[:, n], Φ̇′, Φ̇″, Φ̂′, Φ̂″, Φ̃′, Φ̃″, κ′, ℐ, F, M, ξ[n], ζ[n], ℓ, d)
+    end
+    # start time-marching loop
+    for n in O:N-1
+        j = 0
+        # initialize loop for iterative solver to wave problem
+        while j < J
+            # initial first guess of acceleration potential amplitudes
+            if (j == 0) && (n > 0) && (M_s > 0)
+                @views ϕ̇[:, n] = ϕ̇[:, n-1]
+                @views ψ̇[:, n] = ψ̇[:, n-1]
+            end
+            # apply dynamic free-surface boundary condition
+            @views ϕ̇[:, n] = -g * η̂[:, n] + 2ζ[n] * k″
+            ϕ̇[ℐ+1, n] = -g * η̂[𝒾+1, n] - ζ[n] * (d ^ 2 / ℓ + ℓ / 12)
+            if M_s > 0
+                @views ϕ̇[:, n] -= δϕ̇(n)
+            end
+            # apply Adams-Bashforth predictor
+            @views ϕ̂[:, n+1] = ϕ̂[:, n] + Δt * sum(c_ab[i] * ϕ̇[:, n+1-i] for i in 1:O)
+            # apply nonlinear bottom boundary condition if necessary
+            if M_b > 0
+                if !static_bottom
+                    update_bbc_sle!(A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, β̃, β̂[:, n+1], κ, ℐ, F, M_b)
+                    w′ = (2im * κ′ * β̃ + β̂[:, n+1] ^ 2)
+                end
+                b = A′ * ϕ̂[:, n+1] + β̇[:, n+1] + w′[ℐ+1:3ℐ+1]
+                ψ̂[:, n+1] = A″ \ b
+            end
+            # apply kinematic free-surface boundary condition
+            @views η̇[:, n+1] = @. κ * 𝒯 * ϕ̂[:, n+1] + ψ̂[:, n+1] * 𝒮
+            η̇[ℐ+1, n+1] += 2ζ[n+1] * d / ℓ
+            if M_s > 0
+                @views η̇[:, n+1] -= δη̇(n+1)
+            end
+            η̂ₚ = η̂[:, n+1]
+            # apply Adams-Moulton corrector
+            @views η̂[:, n+1] = η̂[:, n] + Δt * sum(c_am[1] * η̇[:, n+2-1] for i in 1:O)
+            if M_s > 0
+                # check accuracy of the solution
+                general_error(η̂ₚ, η̂[:, n+1]) < ϵ ? break : j += 1
+                # apply central difference scheme
+                n == O ? ψ̇[:, n] = ψ̇[:, n+1] / Δt : ψ̇[:, n] = (ψ̇[:, n+1] - ψ̇[:, n-1]) / 2Δt
+            elseif isfinite(norm(η̂[:, n+1]))
+                break
+            else
+                return false
+            end
+        end
+    end
+    return true
 end

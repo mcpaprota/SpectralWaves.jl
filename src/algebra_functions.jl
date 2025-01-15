@@ -25,7 +25,7 @@ function convolve(a::Vector{Ta}, b::Vector{Tb}) where {Ta<:Number, Tb<:Number}
     return c
 end
 
-Base.:*(a::Vector{<:Number}, b::Vector{<:Number}) = convolve(a, b) # infix version of convolve
+⊛(a::Vector{<:Number}, b::Vector{<:Number}) = convolve(a, b) # infix version of convolve
 
 """
     convolution_power(a::Vector{<:Number}, n::Integer)
@@ -131,6 +131,18 @@ julia> a = [1, 2]; b = [1, 1]; absolute_error(a, b)
 function absolute_error(a::Vector{<:Number}, b::Vector{<:Number})
     ϵ = norm(a - b)
     return ϵ
+end
+
+"""
+    general_error(a::Vector{<:Number}, b::Vector{<:Number})
+
+Compute a general error between vectors `a` and `b` as a `relative_error(a, b)`
+or an `absolute_error(a, b)` for `norm(a)` not equal or equal to 0, respectively.
+
+"""
+function general_error(a::Vector{<:Number}, b::Vector{<:Number})
+    norm(a) == 0 && return absolute_error(a, b)
+    return relative_error(a, b)
 end
 
 
