@@ -25,7 +25,7 @@ function convolve(a::Vector{Ta}, b::Vector{Tb}) where {Ta<:Number, Tb<:Number}
     return c
 end
 
-⊛(a::Vector{<:Number}, b::Vector{<:Number}) = convolve(a, b) # infix version of convolve
+Base.:*(a::Vector{<:Number}, b::Vector{<:Number}) = convolve(a, b) # infix version of convolve
 
 """
     convolution_power(a::Vector{<:Number}, n::Integer)
