@@ -16,14 +16,14 @@ T = 2π / ω # wave period (s)
 # Define numerical model parameters
 M_s = 0 # FSBC Taylor series order (linear wave)
 M_b = 0 # BBC Taylor series order (horizontal bottom)
-ℐ = 10 # number of harmonics
-nΔt = 100 # number of time steps per wave period
+ℐ = 1 # number of harmonics
+nΔt = 200 # number of time steps per wave period
 Δt = T / nΔt # time step (s)
 nT = 1 # number of periods
 N = nΔt * nT # number of time steps
 
 # Initialize wave problem
-κ, η̂, η̇, β̂, β̇, ϕ̂, ϕ̇, ψ̂, ψ̇, p̂, χ, ξ, ζ, 𝒯, 𝒮, O = init_problem(ℓ, d, ℐ, N)
+κ, η̂, η̇, β̂, β̇, ϕ̂, ϕ̇, ψ̂, ψ̇, p̂, χ, ξ, ζ, 𝒯, 𝒮, O = init_problem(ℓ, d, ℐ, N; O=4)
 
 # Define initial conditions
 η̂[ℐ:ℐ+2, O] = [a / 2, 0, a / 2]
@@ -35,3 +35,10 @@ N = nΔt * nT # number of time steps
 
 # Solve wave problem
 solve_problem!(η̂, η̇, ϕ̂, ϕ̇, ψ̂, ψ̇, β̂, β̇, p̂, κ, 𝒯, 𝒮, ℐ, M_s, M_b, Δt, O, N, χ, ξ, ζ, ℓ, d)
+
+# Plot results
+fig = Figure(size = (400, 300))
+ax = Axis(fig[1, 1])
+lines!(ax, 2*abs.(η̂[1, :]))
+lines!(ax, 2*real.(η̂[1, :]))
+display(fig)

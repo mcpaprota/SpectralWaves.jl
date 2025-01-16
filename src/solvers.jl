@@ -93,11 +93,10 @@ end
 
 function solve_problem!(η̂, η̇, ϕ̂, ϕ̇, ψ̂, ψ̇, β̂, β̇, p̂, κ, 𝒯, 𝒮, ℐ, M_s, M_b, Δt, O, N, χ, ξ, ζ, ℓ, d; static_bottom=true)
     # initialize auxiliary variables
-    N += O
     c_ab, c_am = time_integration_coeffs(O)
     F = factorial_lookup(max(M_s, M_b))
-    @. κ′ =  1 / κ * (κ ≠ 0)
-    @. κ″ =  1 / κ^2 * (κ ≠ 0)
+    κ′ = @.  1 / κ * (κ ≠ 0)
+    κ″ = @.  1 / κ^2 * (κ ≠ 0)
     # initialize nonlinear bottom boundary condition if necessary
     if M_b > 0
         Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, A′, A″ = init_nonlinear_bottom_boundary_condition(κ, 𝒯, 𝒮, ℐ, M_b)
@@ -115,18 +114,18 @@ function solve_problem!(η̂, η̇, ϕ̂, ϕ̇, ψ̂, ψ̇, β̂, β̇, p̂, κ,
         δϕ̇(n) = nonlinear_dfsbc_correction(η̂[:, n], ϕ̂[:, n], ϕ̇[:, n], ψ̂[:, n], Φ̇′, Φ̇″, Φ̂′, Φ̂″, Φ̃′, Φ̃″, κ′, ℐ, F, M, ξ[n], ζ[n], ℓ, d)
     end
     # start time-marching loop
-    for n in O:N-1
+    for n in O:N+O-1
         j = 0
+        # initial first guess of acceleration potential amplitudes
+        if (n > O) && (M_s > 0)
+            @views ϕ̇[:, n] = ϕ̇[:, n-1]
+            @views ψ̇[:, n] = ψ̇[:, n-1]
+        end
         # initialize loop for iterative solver to wave problem
         while j < J
-            # initial first guess of acceleration potential amplitudes
-            if (j == 0) && (n > 0) && (M_s > 0)
-                @views ϕ̇[:, n] = ϕ̇[:, n-1]
-                @views ψ̇[:, n] = ψ̇[:, n-1]
-            end
             # apply dynamic free-surface boundary condition
-            @views ϕ̇[:, n] = -g * η̂[:, n] + 2ζ[n] * k″
-            ϕ̇[ℐ+1, n] = -g * η̂[𝒾+1, n] - ζ[n] * (d ^ 2 / ℓ + ℓ / 12)
+            @views ϕ̇[:, n] = -g * η̂[:, n] + 2ζ[n] * κ″ / ℓ
+            ϕ̇[ℐ+1, n] = -g * η̂[ℐ+1, n] - ζ[n] * (d^2 / ℓ - ℓ / 12)
             if M_s > 0
                 @views ϕ̇[:, n] -= δϕ̇(n)
             end
@@ -149,7 +148,7 @@ function solve_problem!(η̂, η̇, ϕ̂, ϕ̇, ψ̂, ψ̇, β̂, β̇, p̂, κ,
             end
             η̂ₚ = η̂[:, n+1]
             # apply Adams-Moulton corrector
-            @views η̂[:, n+1] = η̂[:, n] + Δt * sum(c_am[1] * η̇[:, n+2-1] for i in 1:O)
+            @views η̂[:, n+1] = η̂[:, n] + Δt * sum(c_am[i] * η̇[:, n+2-i] for i in 1:O)
             if M_s > 0
                 # check accuracy of the solution
                 general_error(η̂ₚ, η̂[:, n+1]) < ϵ ? break : j += 1
