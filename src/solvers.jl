@@ -155,10 +155,10 @@ function solve_problem!(η̂, η̇, ϕ̂, ϕ̇, ψ̂, ψ̇, β̂, β̇, p̂, κ,
                 general_error(η̂ₚ, η̂[:, n+1]) < ϵ ? break : j += 1
                 # apply central difference scheme
                 n == O ? ψ̇[:, n] = ψ̇[:, n+1] / Δt : ψ̇[:, n] = (ψ̇[:, n+1] - ψ̇[:, n-1]) / 2Δt
-            elseif isfinite(norm(η̂[:, n+1]))
-                break
+                # check simulation blow-up
+                isfinite(norm(η̂[:, n+1])) || return false
             else
-                return false
+                break
             end
         end
     end

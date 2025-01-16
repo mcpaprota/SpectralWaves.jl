@@ -20,7 +20,7 @@ Output is a tuple `(η̂, η̇, β̂, β̇, ϕ̂, ϕ̇, ψ̂, ψ̇, p̂, χ, ξ,
 - `𝒯` are hyperbolic tangent lookup values,
 - `𝒮` are hyperbolic secant lookup values.
 """
-function init_problem(ℓ::Number, d::Number, ℐ::Integer, N::Integer)
+function init_problem(ℓ::Number, d::Number, ℐ::Integer, N::Integer; O = 4)
     κ = 2π / ℓ * (-ℐ:ℐ)
     η̂ = complex(zeros(2ℐ + 1, N))
     η̇ = complex(zeros(2ℐ + 1, N))
@@ -36,7 +36,7 @@ function init_problem(ℓ::Number, d::Number, ℐ::Integer, N::Integer)
     ζ = zeros(N)
     𝒯 = tanh.(κ * d)
     𝒮 = sech.(κ * d)
-    return κ, η̂, η̇, β̂, β̇, ϕ̂, ϕ̇, ψ̂, ψ̇, p̂, χ, ξ, ζ, 𝒯, 𝒮
+    return κ, η̂, η̇, β̂, β̇, ϕ̂, ϕ̇, ψ̂, ψ̇, p̂, χ, ξ, ζ, 𝒯, 𝒮, O
 end
 
 """
