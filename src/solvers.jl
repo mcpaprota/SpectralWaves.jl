@@ -76,7 +76,7 @@ function nonlinear_dfsbc_correction(η̂, ϕ̂, ψ̂, ϕ̇, Φ̇′, Φ̇″, Φ
 end
 
 """
-    time_integration_coeffs(O)
+    time_integration_coeffs(O::Integer)
 
 Calculate Adams-Bashforth-Moulton time-stepping scheme coefficients for a given order `O`.
 
@@ -84,7 +84,7 @@ Output is a tuple of two vectors with Adams-Bashforth and Adams-Moulton coeffici
 respectively.
 
 """
-function time_integration_coeffs(O)
+function time_integration_coeffs(O::Integer)
     O == 1 && return [1.0], [1.0]
     O == 2 && return [3, -1] / 2, [1, 1] / 2
     O == 3 && return [23, -16, 5] / 12, [5, 8, -1] / 12
