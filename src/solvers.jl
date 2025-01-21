@@ -1,17 +1,18 @@
 
 """
-    update_bbc_sle!(A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, β̃, β̂, κ, ℐ, F, M)
+    update_bbc_sle!(A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, β̂, κ, ℐ, F, M)
 
 Compute coefficients `A′`, `A″`, and `β̃` for the bottom boundary condition
 system of linear equations.
 
 """
-function update_bbc_sle!(A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, β̃, β̂, κ, ℐ, F, M)
+function update_bbc_sle!(A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, w′, β̂, κ, κ′, ℐ, F, M)
     N, _ = convolution_range(0, M, ℐ)
     a = complex(zeros(N))
     A′[:] = zeros(2ℐ + 1, 2ℐ + 1)
     A″[:] = diagm(ones(2ℐ + 1))
-    β̃[:] = im * κ .* β̂
+    β̃ = im * κ .* β̂
+    w′[:] = (2im * κ′ * β̃ + β̂ ^ 2)
     _, r1 = convolution_range(1, M, ℐ)
     for m in 0:M-1
         _, r = convolution_range(m, M, ℐ)
@@ -35,7 +36,7 @@ function nonlinear_kfsbc_correction(η̂, ϕ̂, ψ̂, Φ̂′, Φ̂″, Φ̃′,
     N, r0 = convolution_range(0, M, ℐ)
     δη̇ = complex(zeros(N))
     η̃ = im * κ .* η̂
-    Φ̃ = Φ̃′ .* ϕ̃ + Φ̃″ .* ψ̃
+    Φ̃ = Φ̃′ .* ϕ̂ + Φ̃″ .* ψ̂
     Φ̂ = Φ̂′ .* ϕ̂ + Φ̂″ .* ψ̂
     Φ̃[:, 1] -= 2im * ξ / ℓ * κ′
     Φ̂[ℐ+1, 2] += 2ξ / ℓ
@@ -47,12 +48,12 @@ function nonlinear_kfsbc_correction(η̂, ϕ̂, ψ̂, Φ̂′, Φ̂″, Φ̃′,
 end
 
 """
-    nonlinear_dfsbc_correction(η̂, ϕ̂, ψ̂, ϕ̇, Φ̇′, Φ̇″, Φ̂′, Φ̂″, Φ̃′, Φ̃″, κ′, ℐ, F, M, ξ, ζ, ℓ, d)
+    nonlinear_dfsbc_correction(η̂, ϕ̂, ϕ̇, ψ̂, ψ̇, Φ̇′, Φ̇″, Φ̂′, Φ̂″, Φ̃′, Φ̃″, κ′, ℐ, F, M, ξ, ζ, ℓ, d)
 
 Calculate nonlinear correction `δϕ̇` to dynamic free-surface boundary condition.
 
 """
-function nonlinear_dfsbc_correction(η̂, ϕ̂, ψ̂, ϕ̇, Φ̇′, Φ̇″, Φ̂′, Φ̂″, Φ̃′, Φ̃″, κ′, ℐ, F, M, ξ, ζ, ℓ, d)
+function nonlinear_dfsbc_correction(η̂, ϕ̂, ϕ̇, ψ̂, ψ̇, Φ̇′, Φ̇″, Φ̂′, Φ̂″, Φ̃′, Φ̃″, κ′, ℐ, F, M, ξ, ζ, ℓ, d)
     N, r0 = convolution_range(0, M, ℐ)
     δϕ̇ = complex(zeros(N))
     Φ̇ = Φ̇′ .* ϕ̇ + Φ̇″ .* ψ̇
@@ -66,8 +67,8 @@ function nonlinear_dfsbc_correction(η̂, ϕ̂, ψ̂, ϕ̇, Φ̇′, Φ̇″, Φ
     end
     for m in 0:M-1
         Φ² = complex(zeros(4ℐ + 1))
-        for n in 0:M
-            Φ² = binomial(m, n) * (Φ̃[:, n+1] * Φ̃[:, m-n+1] + Φ̂[:, n+1] * Φ̂[:, m-n+1])
+        for n in 0:m
+            Φ² += binomial(m, n) * (Φ̃[:, n+1] * Φ̃[:, m-n+1] + Φ̂[:, n+1] * Φ̂[:, m-n+1])
         end
         _, r = convolution_range(m + 1, M, ℐ)
         δϕ̇[r] += η̂ ^ m / F[m+1] * (η̂ * Φ̇[:, m+2] / (m + 1) + Φ²)
@@ -99,19 +100,18 @@ function solve_problem!(η̂, η̇, ϕ̂, ϕ̇, ψ̂, ψ̇, β̂, β̇, p̂, κ,
     κ″ = @.  1 / κ^2 * (κ ≠ 0)
     # initialize nonlinear bottom boundary condition if necessary
     if M_b > 0
-        Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, A′, A″ = init_nonlinear_bottom_boundary_condition(κ, 𝒯, 𝒮, ℐ, M_b)
+        Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, A′, A″, w′ = init_nonlinear_bottom_boundary_condition(κ, 𝒯, 𝒮, ℐ, M_b)
         if static_bottom
-            update_bbc_sle!(A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, β̃, β̂[:, O], κ, ℐ, F, M_b)
+            update_bbc_sle!(A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, w′, β̂[:, 1], κ, κ′, ℐ, F, M_b)
             A″ = factorize(A″)
-            w′ = (2im * κ′ * β̃ + β̂ ^ 2)
         end
     end
     # initialize nonlinear free-surface boundary conditions if necessary
     if M_s > 0
         Φ̇′, Φ̇″, Φ̂′, Φ̂″, Φ̃′, Φ̃″ = init_nonlinear_surface_boundary_condition(κ, 𝒯, 𝒮, ℐ, M_s)
         # define short calls to nonlinear correction functions
-        δη̇(n) = nonlinear_kfsbc_correction(η̂[:, n], ϕ̂[:, n], ψ̂[:, n], Φ̂′, Φ̂″, Φ̃′, Φ̃″, κ, κ′, ℐ, F, M, ξ[n], ℓ)
-        δϕ̇(n) = nonlinear_dfsbc_correction(η̂[:, n], ϕ̂[:, n], ϕ̇[:, n], ψ̂[:, n], Φ̇′, Φ̇″, Φ̂′, Φ̂″, Φ̃′, Φ̃″, κ′, ℐ, F, M, ξ[n], ζ[n], ℓ, d)
+        δη̇(n) = nonlinear_kfsbc_correction(η̂[:, n], ϕ̂[:, n], ψ̂[:, n], Φ̂′, Φ̂″, Φ̃′, Φ̃″, κ, κ′, ℐ, F, M_s, ξ[n], ℓ)
+        δϕ̇(n) = nonlinear_dfsbc_correction(η̂[:, n], ϕ̂[:, n], ϕ̇[:, n], ψ̂[:, n], ψ̇[:, n], Φ̇′, Φ̇″, Φ̂′, Φ̂″, Φ̃′, Φ̃″, κ′, ℐ, F, M_s, ξ[n], ζ[n], ℓ, d)
     end
     # start time-marching loop
     for n in O:N+O-1
@@ -124,25 +124,25 @@ function solve_problem!(η̂, η̇, ϕ̂, ϕ̇, ψ̂, ψ̇, β̂, β̇, p̂, κ,
         # initialize loop for iterative solver to wave problem
         while j < J
             # apply dynamic free-surface boundary condition
-            @views ϕ̇[:, n] = -g * η̂[:, n] + 2ζ[n] * κ″ / ℓ
-            ϕ̇[ℐ+1, n] = -g * η̂[ℐ+1, n] - ζ[n] * (d^2 / ℓ - ℓ / 12)
-            if M_s > 0
-                @views ϕ̇[:, n] -= δϕ̇(n)
+            if M_s == 0
+                @views ϕ̇[:, n] = -g * η̂[:, n] + 2ζ[n] * κ″ / ℓ
+            else
+                @views ϕ̇[:, n] = -g * η̂[:, n] + 2ζ[n] * κ″ / ℓ - δϕ̇(n)
             end
+            ϕ̇[ℐ+1, n] = -g * η̂[ℐ+1, n] - ζ[n] * (d^2 / ℓ - ℓ / 12)
             # apply Adams-Bashforth predictor
             @views ϕ̂[:, n+1] = ϕ̂[:, n] + Δt * sum(c_ab[i] * ϕ̇[:, n+1-i] for i in 1:O)
             # apply nonlinear bottom boundary condition if necessary
             if M_b > 0
                 if !static_bottom
-                    update_bbc_sle!(A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, β̃, β̂[:, n+1], κ, ℐ, F, M_b)
-                    w′ = (2im * κ′ * β̃ + β̂[:, n+1] ^ 2)
+                    update_bbc_sle!(A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, w′, β̂[:, n+1], κ, κ′, ℐ, F, M_b)
                 end
                 b = A′ * ϕ̂[:, n+1] + β̇[:, n+1] + w′[ℐ+1:3ℐ+1]
                 ψ̂[:, n+1] = A″ \ b
             end
             # apply kinematic free-surface boundary condition
             @views η̇[:, n+1] = @. κ * 𝒯 * ϕ̂[:, n+1] + ψ̂[:, n+1] * 𝒮
-            η̇[ℐ+1, n+1] += 2ζ[n+1] * d / ℓ
+            η̇[ℐ+1, n+1] += 2ξ[n+1] * d / ℓ
             if M_s > 0
                 @views η̇[:, n+1] -= δη̇(n+1)
             end

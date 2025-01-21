@@ -5,16 +5,16 @@ using GLMakie
 
 # Define fluid domain and wave parameters
 d = 1.0 # water depth (m)
-H = 0.2 # wave height (m)
-L = 5.0 # wavelength (m)
-ℓ = 200.0 # fluid domain length (m)
+H = 0.05 # wave height (m)
+L = 2.0 # wavelength (m)
+ℓ = 100.0 # fluid domain length (m)
 
 # Define numerical model parameters
-M_s = 2 # FSBC Taylor series order (linear wave)
-M_b = 0 # BBC Taylor series order (horizontal bottom)
+M_s = 0 # FSBC Taylor series order (linear wave)
+M_b = 20 # BBC Taylor series order (horizontal bottom)
 ℐ = 200 # number of harmonics
 nΔt = 200 # number of time steps per wave period
-nT = 20 # number of wave periods
+nT = 10 # number of wave periods
 nT₀ = 1 # number of ramped wave periods
 N = nΔt * nT # number of time steps
 
@@ -24,20 +24,28 @@ N = nΔt * nT # number of time steps
 # Define wavemaker motion
 T, Δt, t = linear_wavemaker!(χ, ξ, ζ, H, L, d, nΔt, nT, nT₀, O)
 
+# Define bathymetry - slope
+h = 0.1 # slope height (m)
+β̂ = @. -4h / 3 * sinc(κ * ℓ / 3π)^2
+β̂[ℐ+1] = 2h / 3
+
 # Solve wave problem
 solve_problem!(η̂, η̇, ϕ̂, ϕ̇, ψ̂, ψ̇, β̂, β̇, p̂, κ, 𝒯, 𝒮, ℐ, M_s, M_b, Δt, O, N, χ, ξ, ζ, ℓ, d)
 
 # Define free-surface elevation
 η₁(x, n) = inverse_fourier_transform(η̂[:, n], κ, x)
+β₁(x) = inverse_fourier_transform(β̂, κ, x)
 x = range(0, ℓ / 2, length = 500)
 η(n) = η₁.(x, n)
+β = β₁.(x)
 η₀  = Observable(η(O))
 
 # animate free-surface elevation
 fig = Figure(size = (800, 400))
 ax = Axis(fig[1, 1], xlabel = "x (m)", ylabel = "η (m)")
 lines!(ax, x, η₀, color = :blue, linewidth = 2)
-limits!(ax, 0, ℓ / 2, -H, H)
+lines!(ax, x, β .- d, color = :yellow, linewidth = 2)
+limits!(ax, 0, ℓ / 2, -d, 2H)
 display(fig)
 
 for n in O:10:N

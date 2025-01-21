@@ -4,7 +4,7 @@
 Initialize IBVP wave problem corresponding to a fluid domain of length `ℓ` and depth `d`
 with `ℐ` harmonics and `N` time steps.
 
-Output is a tuple `(η̂, η̇, β̂, β̇, ϕ̂, ϕ̇, ψ̂, ψ̇, p̂, χ, ξ, ζ, 𝒯, 𝒮)`, where:
+Output is a tuple `(η̂, η̇, β̂, β̃, β̇, ϕ̂, ϕ̇, ψ̂, ψ̇, p̂, χ, ξ, ζ, 𝒯, 𝒮)`, where:
 - `η̂` are free-surface elevation amplitudes (m),
 - `η̇` are free-surface vertical velocity amplitudes (m/s),
 - `β̂` are bottom-surface elevation amplitudes (m),
@@ -71,7 +71,7 @@ function init_nonlinear_surface_boundary_condition(κ, 𝒯, 𝒮, ℐ, M)
         Φ̂′[:, m + 1] = iseven(m) ? κ .^ (m + 1) .* 𝒯 : κ .^ (m + 1)
         Φ̂″[:, m + 1] = iseven(m) ? κ .^ m .* 𝒮 : zero(κ)
         Φ̃′[:, m + 1] = (iseven(m) ? κ .^ (m + 1) : κ .^ (m + 1) .* 𝒯) * im
-        Φ̃″[:, m + 1] = (iseven(m) ? zero(κ) : κ .^ m .* S) * im
+        Φ̃″[:, m + 1] = (iseven(m) ? zero(κ) : κ .^ m .* 𝒮) * im
     end
     return Φ̇′, Φ̇″, Φ̂′, Φ̂″, Φ̃′, Φ̃″
 end
@@ -99,11 +99,12 @@ function init_nonlinear_bottom_boundary_condition(κ, 𝒯, 𝒮, ℐ, M)
     Ψ̃″ = complex(zeros(2ℐ + 1, M + 1))
     A′ = zeros(2ℐ + 1, 2ℐ + 1)
     A″ = zeros(2ℐ + 1, 2ℐ + 1)
+    w′ = zeros(4ℐ + 1)
     for m in 0:M
         Ψ̂′[:, m + 1] = iseven(m) ? zero(κ) : κ .^ (m + 1) .* 𝒮
         Ψ̂″[:, m + 1] = iseven(m) ? κ .^ m : -(κ .^ m) .* 𝒯
         Ψ̃′[:, m + 1] = (iseven(m) ? κ .^ (m + 1) .* 𝒮 : zero(κ)) * im
         Ψ̃″[:, m + 1] = (iseven(m) ? -(κ .^ m) .* 𝒯 : κ .^ m) * im
     end
-    return Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, A′, A″
+    return Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, A′, A″, w′
 end
