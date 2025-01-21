@@ -5,17 +5,17 @@ using GLMakie
 
 # Define fluid domain and wave parameters
 d = 1.0 # water depth (m)
-H = 0.05 # wave height (m)
-L = 2.0 # wavelength (m)
+H = 0.1 # wave height (m)
+L = 5.0 # wavelength (m)
 ℓ = 100.0 # fluid domain length (m)
 
 # Define numerical model parameters
 M_s = 0 # FSBC Taylor series order (linear wave)
-M_b = 20 # BBC Taylor series order (horizontal bottom)
+M_b = 40 # BBC Taylor series order (horizontal bottom)
 ℐ = 200 # number of harmonics
 nΔt = 200 # number of time steps per wave period
-nT = 10 # number of wave periods
-nT₀ = 1 # number of ramped wave periods
+nT = 20 # number of wave periods
+nT₀ = 5 # number of ramped wave periods
 N = nΔt * nT # number of time steps
 
 # Initialize wave problem
@@ -25,7 +25,7 @@ N = nΔt * nT # number of time steps
 T, Δt, t = linear_wavemaker!(χ, ξ, ζ, H, L, d, nΔt, nT, nT₀, O)
 
 # Define bathymetry - slope
-h = 0.1 # slope height (m)
+h = 0.8 # slope height (m)
 β̂ = @. -4h / 3 * sinc(κ * ℓ / 3π)^2
 β̂[ℐ+1] = 2h / 3
 

@@ -18,7 +18,7 @@ function update_bbc_sle!(A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, w′, �
         _, r = convolution_range(m, M, ℐ)
         a[r] = β̂ ^ m * β̃ / F[m+1]
         B̃ = toeplitz(a[r1])
-        a[r] = β̂ ^ m * β̂ / F[m+1]
+        a[r] = β̂ ^ m * β̂ / F[m+2]
         B̂ = toeplitz(a[r1])
         A′[:] = @. A′ + B̃ * transpose(Ψ̃′[:, m+1]) - B̂ * transpose(Ψ̂′[:, m+2]) # SLE constant coefficient matrix
         A″[:] = @. A″ - B̃ * transpose(Ψ̃″[:, m+1]) + B̂ * transpose(Ψ̂″[:, m+2]) # SLE coefficient matrix
@@ -100,7 +100,7 @@ function solve_problem!(η̂, η̇, ϕ̂, ϕ̇, ψ̂, ψ̇, β̂, β̇, p̂, κ,
     κ″ = @.  1 / κ^2 * (κ ≠ 0)
     # initialize nonlinear bottom boundary condition if necessary
     if M_b > 0
-        Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, A′, A″, w′ = init_nonlinear_bottom_boundary_condition(κ, 𝒯, 𝒮, ℐ, M_b)
+        A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, w′ = init_nonlinear_bottom_boundary_condition(κ, 𝒯, 𝒮, ℐ, M_b)
         if static_bottom
             update_bbc_sle!(A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, w′, β̂[:, 1], κ, κ′, ℐ, F, M_b)
             A″ = factorize(A″)
@@ -137,7 +137,7 @@ function solve_problem!(η̂, η̇, ϕ̂, ϕ̇, ψ̂, ψ̇, β̂, β̇, p̂, κ,
                 if !static_bottom
                     update_bbc_sle!(A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, w′, β̂[:, n+1], κ, κ′, ℐ, F, M_b)
                 end
-                b = A′ * ϕ̂[:, n+1] + β̇[:, n+1] + w′[ℐ+1:3ℐ+1]
+                b = A′ * ϕ̂[:, n+1] + β̇[:, n+1] - ξ[n+1] / ℓ * w′[ℐ+1:3ℐ+1]
                 ψ̂[:, n+1] = A″ \ b
             end
             # apply kinematic free-surface boundary condition
@@ -153,7 +153,7 @@ function solve_problem!(η̂, η̇, ϕ̂, ϕ̇, ψ̂, ψ̇, β̂, β̇, p̂, κ,
                 # check accuracy of the solution
                 general_error(η̂ₚ, η̂[:, n+1]) < ϵ ? break : j += 1
                 # apply central difference scheme
-                n == O ? ψ̇[:, n] = ψ̇[:, n+1] / Δt : ψ̇[:, n] = (ψ̇[:, n+1] - ψ̇[:, n-1]) / 2Δt
+                n == O ? ψ̇[:, n] = ψ̂[:, n+1] / Δt : ψ̇[:, n] = (ψ̂[:, n+1] - ψ̂[:, n-1]) / 2Δt
                 # check simulation blow-up
                 isfinite(norm(η̂[:, n+1])) || return false
             else

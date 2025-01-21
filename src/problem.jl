@@ -106,5 +106,5 @@ function init_nonlinear_bottom_boundary_condition(κ, 𝒯, 𝒮, ℐ, M)
         Ψ̃′[:, m + 1] = (iseven(m) ? κ .^ (m + 1) .* 𝒮 : zero(κ)) * im
         Ψ̃″[:, m + 1] = (iseven(m) ? -(κ .^ m) .* 𝒯 : κ .^ m) * im
     end
-    return Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, A′, A″, w′
+    return A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, w′
 end

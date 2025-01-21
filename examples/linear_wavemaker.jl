@@ -10,12 +10,12 @@ L = 5.0 # wavelength (m)
 ℓ = 200.0 # fluid domain length (m)
 
 # Define numerical model parameters
-M_s = 2 # FSBC Taylor series order (linear wave)
+M_s = 0 # FSBC Taylor series order (linear wave)
 M_b = 0 # BBC Taylor series order (horizontal bottom)
 ℐ = 200 # number of harmonics
 nΔt = 200 # number of time steps per wave period
 nT = 20 # number of wave periods
-nT₀ = 1 # number of ramped wave periods
+nT₀ = 5 # number of ramped wave periods
 N = nΔt * nT # number of time steps
 
 # Initialize wave problem
