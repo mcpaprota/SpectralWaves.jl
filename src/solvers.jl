@@ -8,7 +8,8 @@ system of linear equations.
 """
 function update_bbc_sle!(A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, w′, β̂, κ, κ′, ℐ, F, M)
     N, _ = convolution_range(0, M, ℐ)
-    a = complex(zeros(N))
+    b̃ = complex(zeros(N))
+    b̂ = zeros(N)
     A′[:,:] = zeros(2ℐ + 1, 2ℐ + 1)
     A″[:,:] = diagm(ones(2ℐ + 1))
     β̃ = im * κ .* β̂
@@ -16,10 +17,10 @@ function update_bbc_sle!(A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, w′, �
     _, r1 = convolution_range(1, M, ℐ)
     for m in 0:M-1
         _, r = convolution_range(m, M, ℐ)
-        a[r] = β̂ ^ m * β̃ / F[m+1]
-        B̃ = toeplitz(a[r1])
-        a[r] = β̂ ^ m * β̂ / F[m+2]
-        B̂ = toeplitz(a[r1])
+        b̃[r] = β̂ ^ m * β̃ / F[m+1]
+        B̃ = toeplitz(b̃[r1])
+        b̂[r] = β̂ ^ m * β̂ / F[m+2]
+        B̂ = toeplitz(b̂[r1])
         A′[:,:] += B̃ .* transpose(Ψ̃′[:, m+1]) - B̂ .* transpose(Ψ̂′[:, m+2]) # SLE constant coefficient matrix
         A″[:,:] += - B̃ .* transpose(Ψ̃″[:, m+1]) + B̂ .* transpose(Ψ̂″[:, m+2]) # SLE coefficient matrix
     end

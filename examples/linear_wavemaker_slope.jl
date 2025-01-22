@@ -5,13 +5,13 @@ using GLMakie
 
 # Define fluid domain and wave parameters
 d = 1.0 # water depth (m)
-H = 0.01 # wave height (m)
+H = 0.005 # wave height (m)
 L = 5.0 # wavelength (m)
 ℓ = 100.0 # fluid domain length (m)
 
 # Define numerical model parameters
 M_s = 0 # FSBC Taylor series order (linear wave)
-M_b = 60 # BBC Taylor series order (horizontal bottom)
+M_b = 70 # BBC Taylor series order (horizontal bottom)
 ℐ = 200 # number of harmonics
 nΔt = 200 # number of time steps per wave period
 nT = 20 # number of wave periods
@@ -25,7 +25,7 @@ N = nΔt * nT # number of time steps
 T, Δt, t = linear_wavemaker!(χ, ξ, ζ, H, L, d, nΔt, nT, nT₀, O)
 
 # Define bathymetry - slope
-h = 0.97 # slope height (m)
+h = 0.99 # slope height (m)
 β̂ = @. -4h / 3 * sinc(κ * ℓ / 3π) * sinc(κ * ℓ / 3π)
 β̂[ℐ+1] = 2h / 3
 
@@ -35,7 +35,7 @@ solve_problem!(η̂, η̇, ϕ̂, ϕ̇, ψ̂, ψ̇, β̂, β̇, p̂, κ, 𝒯, �
 # Define free-surface elevation
 η₁(x, n) = inverse_fourier_transform(η̂[:, n], κ, x)
 β₁(x) = inverse_fourier_transform(β̂, κ, x)
-x = range(0, ℓ / 2, length = 500)
+x = range(0, ℓ / 2, length = 1000)
 η(n) = η₁.(x, n)
 β = β₁.(x)
 η₀  = Observable(η(O))
