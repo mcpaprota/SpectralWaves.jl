@@ -1,16 +1,16 @@
 
 """
-    update_bbc_sle!(A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, β̂, κ, ℐ, F, M)
+    update_bbc_sle!(A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, w′, β̂, κ, κ′, ℐ, F, M)
 
-Compute coefficients `A′`, `A″`, and `β̃` for the bottom boundary condition
+Compute coefficients `A′`, `A″` for the bottom boundary condition
 system of linear equations.
 
 """
 function update_bbc_sle!(A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, w′, β̂, κ, κ′, ℐ, F, M)
     N, _ = convolution_range(0, M, ℐ)
     a = complex(zeros(N))
-    A′[:] = zeros(2ℐ + 1, 2ℐ + 1)
-    A″[:] = diagm(ones(2ℐ + 1))
+    A′[:,:] = zeros(2ℐ + 1, 2ℐ + 1)
+    A″[:,:] = diagm(ones(2ℐ + 1))
     β̃ = im * κ .* β̂
     w′[:] = (2im * κ′ * β̃ + β̂ ^ 2)
     _, r1 = convolution_range(1, M, ℐ)
@@ -20,8 +20,8 @@ function update_bbc_sle!(A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, w′, �
         B̃ = toeplitz(a[r1])
         a[r] = β̂ ^ m * β̂ / F[m+2]
         B̂ = toeplitz(a[r1])
-        A′[:] = @. A′ + B̃ * transpose(Ψ̃′[:, m+1]) - B̂ * transpose(Ψ̂′[:, m+2]) # SLE constant coefficient matrix
-        A″[:] = @. A″ - B̃ * transpose(Ψ̃″[:, m+1]) + B̂ * transpose(Ψ̂″[:, m+2]) # SLE coefficient matrix
+        A′[:,:] += B̃ .* transpose(Ψ̃′[:, m+1]) - B̂ .* transpose(Ψ̂′[:, m+2]) # SLE constant coefficient matrix
+        A″[:,:] += - B̃ .* transpose(Ψ̃″[:, m+1]) + B̂ .* transpose(Ψ̂″[:, m+2]) # SLE coefficient matrix
     end
     return nothing
 end

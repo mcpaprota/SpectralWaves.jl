@@ -93,18 +93,18 @@ bottom horizontal velocity potential amplitudes and its vertical gradients.
 
 """
 function init_nonlinear_bottom_boundary_condition(κ, 𝒯, 𝒮, ℐ, M)
+    A′ = zeros(2ℐ + 1, 2ℐ + 1)
+    A″ = zeros(2ℐ + 1, 2ℐ + 1)
     Ψ̂′ = zeros(2ℐ + 1, M + 1)
     Ψ̂″ = zeros(2ℐ + 1, M + 1)
     Ψ̃′ = complex(zeros(2ℐ + 1, M + 1))
     Ψ̃″ = complex(zeros(2ℐ + 1, M + 1))
-    A′ = zeros(2ℐ + 1, 2ℐ + 1)
-    A″ = zeros(2ℐ + 1, 2ℐ + 1)
     w′ = zeros(4ℐ + 1)
     for m in 0:M
-        Ψ̂′[:, m + 1] = iseven(m) ? zero(κ) : κ .^ (m + 1) .* 𝒮
-        Ψ̂″[:, m + 1] = iseven(m) ? κ .^ m : -(κ .^ m) .* 𝒯
-        Ψ̃′[:, m + 1] = (iseven(m) ? κ .^ (m + 1) .* 𝒮 : zero(κ)) * im
-        Ψ̃″[:, m + 1] = (iseven(m) ? -(κ .^ m) .* 𝒯 : κ .^ m) * im
+        Ψ̂′[:, m+1] = iseven(m) ? zero(κ) : κ .^ (m + 1) .* 𝒮
+        Ψ̂″[:, m+1] = iseven(m) ? κ .^ m : -(κ .^ m) .* 𝒯
+        Ψ̃′[:, m+1] = (iseven(m) ? κ .^ (m + 1) .* 𝒮 : zero(κ)) * im
+        Ψ̃″[:, m+1] = (iseven(m) ? -(κ .^ m) .* 𝒯 : κ .^ m) * im
     end
     return A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, w′
 end
