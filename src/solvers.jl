@@ -9,7 +9,7 @@ system of linear equations.
 function update_bbc_sle!(A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, w′, β̂, κ, κ′, ℐ, F, M)
     N, _ = convolution_range(0, M, ℐ)
     b̃ = complex(zeros(N))
-    b̂ = zeros(N)
+    b̂ = complex(zeros(N))
     A′[:,:] = zeros(2ℐ + 1, 2ℐ + 1)
     A″[:,:] = diagm(ones(2ℐ + 1))
     β̃ = im * κ .* β̂

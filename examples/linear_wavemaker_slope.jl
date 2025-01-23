@@ -1,20 +1,20 @@
-# Example 2 - propagation of regular waves in a wave flume
+# Example 3 - propagation of regular waves in a wave flume
 
 using SpectralWaves
 using GLMakie
 
 # Define fluid domain and wave parameters
 d = 1.0 # water depth (m)
-H = 0.005 # wave height (m)
-L = 5.0 # wavelength (m)
+H = 0.02 # wave height (m)
+L = 2.0 # wavelength (m)
 ℓ = 100.0 # fluid domain length (m)
 
 # Define numerical model parameters
 M_s = 0 # FSBC Taylor series order (linear wave)
-M_b = 70 # BBC Taylor series order (horizontal bottom)
-ℐ = 200 # number of harmonics
+M_b = 60 # BBC Taylor series order (horizontal bottom)
+ℐ = 5 # number of harmonics
 nΔt = 200 # number of time steps per wave period
-nT = 20 # number of wave periods
+nT = 50 # number of wave periods
 nT₀ = 5 # number of ramped wave periods
 N = nΔt * nT # number of time steps
 
@@ -25,8 +25,8 @@ N = nΔt * nT # number of time steps
 T, Δt, t = linear_wavemaker!(χ, ξ, ζ, H, L, d, nΔt, nT, nT₀, O)
 
 # Define bathymetry - slope
-h = 0.99 # slope height (m)
-β̂ = @. -4h / 3 * sinc(κ * ℓ / 3π) * sinc(κ * ℓ / 3π)
+h = 0.9 # slope height (m)
+β̂ = @. -4h / 3 * sinc(κ * ℓ / 3π)^2
 β̂[ℐ+1] = 2h / 3
 
 # Solve wave problem
