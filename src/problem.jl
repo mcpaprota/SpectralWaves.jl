@@ -4,7 +4,7 @@
 Initialize IBVP wave problem corresponding to a fluid domain of length `ℓ` and depth `d`
 with `ℐ` harmonics and `N` time steps.
 
-Output is a tuple `(η̂, η̇, β̂, β̃, β̇, ϕ̂, ϕ̇, ψ̂, ψ̇, p̂, χ, ξ, ζ, 𝒯, 𝒮)`, where:
+Output is a tuple `(η̂, η̇, β̂, β̃, β̇, ϕ̂, ϕ̇, ψ̂, ψ̇, p̂, χ, ξ, ζ, 𝒯, 𝒮, O)`, where:
 - `η̂` are free-surface elevation amplitudes (m),
 - `η̇` are free-surface vertical velocity amplitudes (m/s),
 - `β̂` are bottom-surface elevation amplitudes (m),
@@ -18,7 +18,9 @@ Output is a tuple `(η̂, η̇, β̂, β̃, β̇, ϕ̂, ϕ̇, ψ̂, ψ̇, p̂, �
 - `ξ` is wavemaker paddle velocity (m/s),
 - `ζ` is wavemaker paddle acceleration (m/s²),
 - `𝒯` are hyperbolic tangent lookup values,
-- `𝒮` are hyperbolic secant lookup values.
+- `𝒮` are hyperbolic secant lookup values,
+- `O` is the order of the time-stepping scheme.
+
 """
 function init_problem(ℓ::Number, d::Number, ℐ::Integer, N::Integer; O = 4)
     κ = 2π / ℓ * (-ℐ:ℐ)

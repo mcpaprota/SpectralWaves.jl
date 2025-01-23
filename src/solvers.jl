@@ -2,11 +2,16 @@
 """
     update_bbc_sle!(A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, w′, β̂, κ, κ′, ℐ, F, M)
 
-Compute coefficients `A′`, `A″` for the bottom boundary condition
-system of linear equations.
+Compute coefficients `A′`, `A″`, and `w′` for the bottom boundary condition
+system of linear equations (SLE).
+
+Modified in-place variables:
+- `A′` are constant coefficients of the system of linear equations and
+- `A″` are coefficients of the system of linear equations,
+- `w′` are coefficients corresponding to the linear wavemaker term.
 
 """
-function update_bbc_sle!(A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, w′, β̂, κ, κ′, ℐ, F, M)
+function update_bbc_sle!(A′, A″, w′, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, β̂, κ, κ′, ℐ, F, M)
     N, _ = convolution_range(0, M, ℐ)
     b̃ = complex(zeros(N))
     b̂ = complex(zeros(N))
@@ -93,6 +98,43 @@ function time_integration_coeffs(O::Integer)
     return [55, -59, 37, -9] / 24, [9, 19, -5, 1] / 24
 end
 
+
+"""
+    solve_problem!(η̂, η̇, ϕ̂, ϕ̇, ψ̂, ψ̇, β̂, β̇, p̂, κ, 𝒯, 𝒮, ℐ, M_s, M_b, Δt, O, N, χ, ξ, ζ, ℓ, d; static_bottom=true)
+
+Calculate solution coefficients `η̂`, `η̇`, `ϕ̂`, `ϕ̇`, `ψ̂`, `ψ̇` of the wave problem.
+
+Modified in-place variables:
+- `η̂` are free-surface elevation potential amplitudes (m),
+- `η̇` are free-surface vertical velocity amplitudes (m/s),
+- `ϕ̂` are flat-bottom velocity potential amplitudes (m²/s),
+- `ϕ̇` are flat-bottom acceleration potential amplitudes (m²/s²),
+- `ψ̂` are uneven-bottom velocity potential amplitudes (m²/s),
+- `ψ̇` are uneven-bottom acceleration potential amplitudes (m²/s²),
+
+Input variables:
+- `β̂` are bottom-surface elevation amplitudes (m),
+- `β̇` are bottom-surface vertical velocity amplitudes (m/s),
+- `p̂` are surface pressure head amplitudes (m),
+- `κ` are wave numbers (rad/m),
+- `𝒯` are hyperbolic tangent lookup values,
+- `𝒮` are hyperbolic secant lookup values,
+- `ℐ` is the number of harmonics,
+- `M_s` is the order of nonlinear free-surface boundary condition,
+- `M_b` is the order of nonlinear bottom boundary condition,
+- `Δt` is the time step (s),
+- `O` is the order of the time-stepping scheme,
+- `N` is the number of time steps,
+- `χ` is wavemaker paddle displacement (m),
+- `ξ` is wavemaker paddle velocity (m/s),
+- `ζ` is wavemaker paddle acceleration (m/s²),
+- `ℓ` is the fluid domain length (m),
+- `d` is the water depth (m).
+
+Keyword arguments:
+- `static_bottom` is a boolean flag to indicate whether the bottom is static.
+
+"""
 function solve_problem!(η̂, η̇, ϕ̂, ϕ̇, ψ̂, ψ̇, β̂, β̇, p̂, κ, 𝒯, 𝒮, ℐ, M_s, M_b, Δt, O, N, χ, ξ, ζ, ℓ, d; static_bottom=true)
     # initialize auxiliary variables
     c_ab, c_am = time_integration_coeffs(O)
@@ -103,7 +145,7 @@ function solve_problem!(η̂, η̇, ϕ̂, ϕ̇, ψ̂, ψ̇, β̂, β̇, p̂, κ,
     if M_b > 0
         A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, w′ = init_nonlinear_bottom_boundary_condition(κ, 𝒯, 𝒮, ℐ, M_b)
         if static_bottom
-            update_bbc_sle!(A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, w′, β̂[:, 1], κ, κ′, ℐ, F, M_b)
+            update_bbc_sle!(A′, A″, w′, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, β̂[:, 1], κ, κ′, ℐ, F, M_b)
             A″ = factorize(A″)
         end
     end
@@ -136,7 +178,7 @@ function solve_problem!(η̂, η̇, ϕ̂, ϕ̇, ψ̂, ψ̇, β̂, β̇, p̂, κ,
             # apply nonlinear bottom boundary condition if necessary
             if M_b > 0
                 if !static_bottom
-                    update_bbc_sle!(A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, w′, β̂[:, n+1], κ, κ′, ℐ, F, M_b)
+                    update_bbc_sle!(A′, A″, w′, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, β̂[:, n+1], κ, κ′, ℐ, F, M_b)
                 end
                 b = A′ * ϕ̂[:, n+1] + β̇[:, n+1] - ξ[n+1] / ℓ * w′[ℐ+1:3ℐ+1]
                 ψ̂[:, n+1] = A″ \ b

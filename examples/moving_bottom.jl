@@ -9,17 +9,17 @@ d = 1.0 # water depth (m)
 
 # Define numerical model parameters
 M_s = 2 # FSBC Taylor series order
-M_b = 10 # BBC Taylor series order
+M_b = 4 # BBC Taylor series order
 ℐ = 100 # number of harmonics
 
 # Define moving bottom parameters
-h = 0.3 # bottom obstacle height (m)
-μ = 0.3 # bottom obstacle relative length
-Fr = 0.5 # bottom obstacle Froude number
+h = 0.1 # bottom obstacle height (m)
+μ = 0.2 # bottom obstacle relative length
+Fr = 1.0 # bottom obstacle Froude number
 λ = d / μ # bottom obstacle characteristic length (m)
 T = λ / sqrt(g * d) # bottom obstacle characteristic period (s)
 nΔt = 200 # number of time steps per wave period
-nT = 2 # number of simulated obstacle periods
+nT = 5 # number of simulated obstacle periods
 Δt = T / nΔt # time step (s)
 N = nΔt * nT # number of time steps
 
