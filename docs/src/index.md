@@ -12,7 +12,28 @@ A Fourier Galerkin method solution to nonlinear waves propagating over topograph
 
 ## Wave problem
 
-We consider waves propagating over arbitrary bottom topography in a periodic fluid domain of length $\ell$ and mean depth $d$ (corresponding to still water level). A Cartesian coordinate system is used to define fluid elements along horizontal $x$-axis coinciding with undisturbed free surface and upward-pointing and vertical $z$-axis. Undulating free surface is described by means of $\eta(x, t)$, while bottom topography is considered as fluctuations $\beta(x, t)$ around $-d$. 
+We consider waves propagating over arbitrary bottom topography in a periodic fluid domain of length $\ell$ and characteristic depth $d$ (corresponding to still water level). A Cartesian coordinate system is used to define fluid elements along horizontal $x$-axis coinciding with undisturbed free surface and upward-pointing and vertical $z$-axis. Undulating free surface is described by means of $\eta(x, t)$, while bottom topography is considered as fluctuations $\beta(x, t)$ around $-d$. The general scheme is presented in _figure 1_ below.
 
+```@example
+include("../../examples/docs_figure_1.jl") # hide
+fig # hide
+```
+_Figure 1: Propagation of waves over topography in a periodic fluid domain._
 
-Documentation for [SpectralWaves].
+According to potential flow assumptions (irrotational flow of an inviscid and incompressible fluid), we define velocity vector field $\mathbf{v}(x, z, t) = \nabla\varPhi(x, z, t)$ and formulate a our boundary-value problem in a following way (_table 1_)
+
+_Table 1: Initial boundary-value problem of waves propagating over topography._
+
+| Equation | Region | Description |
+|:--------|:------|:-----------|
+| $$ \frac{\partial^2\varPhi}{\partial x^2} + \frac{\partial^2\varPhi}{\partial z^2} = 0 $$ | $$ -d + \beta \leq z \leq \eta $$ | Laplace's equation |
+| $$ \frac{\partial\eta}{\partial t} + \frac{\partial\eta}{\partial x}\frac{\partial\varPhi}{\partial x} - \frac{\partial\varPhi}{\partial z} = 0 $$ | $$ z = \eta $$ | Kinematic free-surface boundary condition |
+| $$ \frac{\partial\varPhi}{\partial t} + g\eta + \frac{1}{2}\left(u^2 + w^2 \right) = 0 $$ | $$ z = \eta $$ | Dynamic free-surface boundary condition |
+| $$ \frac{\partial\beta}{\partial t} + \frac{\partial\beta}{\partial x}\frac{\partial\varPhi}{\partial x} - \frac{\partial\varPhi}{\partial z} = 0 $$ | $$ z = \beta - d $$ | Kinematic bottom boundary condition |
+| $$ \varPhi(x + \ell, z, t) = \varPhi(x, z, t) $$ | $$ x = 0, \ell $$ | Periodic lateral boundary condition |
+
+where $u = \partial\varPhi / \partial x$ and $w  = \partial\varPhi / \partial z$ are horizontal and vertical velocity components, respectively, while a gravitational acceleration $g\approx 9.81\,\mathrm{m/s}^2$.
+
+## Spectral solution
+
+We use spectral expansions of $\varPhi$, $\eta$, and $\beta$, while additionally $\varPhi$ is decomposed into parts: $\phi$ - satisfying homogeneous problem of waves propagating over horizontal bottom and $\psi$ - satisfying a corrugated bottom correction. The total velocity potential $\varPhi$ satisfies Laplace equation. In _Table 2_, we provide spectral forms of $\varPhi$, $\eta$, and $\beta$.

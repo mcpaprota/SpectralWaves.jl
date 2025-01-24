@@ -87,11 +87,9 @@ number of harmonics `ℐ` and order of nonlinear expansion `M`.
 
 Output is a tuple `(Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″)`, where:
 - `Ψ̂′` are surface-potential-amplitude dependent expansion coefficients and
-- `Ψ̂″` are bottom-potential-amplitude dependent expansion coefficients for computing
-bottom velocity potential amplitudes and its vertical gradients,
+- `Ψ̂″` are bottom-potential-amplitude dependent expansion coefficients for computing bottom velocity potential amplitudes and its vertical gradients,
 - `Ψ̃′` are surface-potential-amplitude dependent expansion coefficients and
-- `Ψ̃″` are bottom-potential-amplitude dependent expansion coefficients for computing
-bottom horizontal velocity potential amplitudes and its vertical gradients.
+- `Ψ̃″` are bottom-potential-amplitude dependent expansion coefficients for computing bottom horizontal velocity potential amplitudes and its vertical gradients.
 
 """
 function init_nonlinear_bottom_boundary_condition(κ, 𝒯, 𝒮, ℐ, M)
