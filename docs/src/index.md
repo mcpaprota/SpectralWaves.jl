@@ -36,4 +36,16 @@ where $u = \partial\varPhi / \partial x$ and $w  = \partial\varPhi / \partial z$
 
 ## Spectral solution
 
-We use spectral expansions of $\varPhi$, $\eta$, and $\beta$, while additionally $\varPhi$ is decomposed into parts: $\phi$ - satisfying homogeneous problem of waves propagating over horizontal bottom and $\psi$ - satisfying a corrugated bottom correction. The total velocity potential $\varPhi$ satisfies Laplace equation. In _Table 2_, we provide spectral forms of $\varPhi$, $\eta$, and $\beta$.
+We use spectral expansions of $\varPhi$, $\eta$, and $\beta$, while additionally $\varPhi$ is decomposed into parts: $\phi$ - satisfying homogeneous problem of waves propagating over horizontal bottom and $\psi$ - satisfying a corrugated bottom correction. The total velocity potential $\varPhi$ satisfies Laplace equation. In _Table 2_, we provide spectral expansion formulas of $\varPhi$, $\phi$, $\psi$, $\eta$, and $\beta$ along with velocity components $u$ and $w$.
+
+_Table 2: Spectral expansion formulas._
+
+| Equation | Description |
+|--------|----|
+| $$ \varPhi(x, z, t) = \phi(x, z, t) + \psi(x, z, t) $$ | Total velocity potential |
+| $$ \phi(x, z, t) = \sum_{i=-I}^{I}\hat{\phi}_i(t)\frac{\cosh\kappa_i(z+d)}{\cosh\kappa_id}\mathrm{e}^{\mathrm{i}\kappa_ix} $$ | Flat-bottom velocity potential |
+| $$ \psi(x,z,t) = \hat{\psi_0}(t)z + \sum_{i=-I\,\wedge\,i\ne0}^{I}\hat{\psi}_i(t)\frac{\sinh\kappa_iz}{\kappa_i\cosh\kappa_id}\mathrm{e}^{\mathrm{i}\kappa_ix}$$ | Corrugated bottom velocity potential |
+| $$ \eta(x, t) = \sum_{i=-I}^{I}\hat{\eta}_i(t)\mathrm{e}^{\mathrm{i}\kappa_ix} $$ | Free-surface elevation |
+| $$ \beta(x, t) = \sum_{i=-I}^{I}\hat{\beta}_i(t)\mathrm{e}^{\mathrm{i}\kappa_ix} $$ | Bottom topography |
+| $$ u(x, z, t) = \sum_{i=-I\,\wedge\,i\ne0}^{I}\mathrm{i}\frac{\hat{\phi}_i(t)\kappa_i\cosh\kappa_i(z+d) + \hat{\psi}_i(t)\sinh\kappa_iz}{\cosh\kappa_id}\mathrm{e}^{\mathrm{i}\kappa_ix}$$ | Horizontal velocity component|
+| $$ w(x, z, t) = \hat{\psi_0}(t)+ \sum_{i=-I\,\wedge\,i\ne0}^{I}\frac{\hat{\phi}_i(t)\kappa_i\sinh\kappa_i(z+d) + \hat{\psi}_i(t)\cosh\kappa_iz}{\cosh\kappa_id}\mathrm{e}^{\mathrm{i}\kappa_ix}$$ | Vertical velocity component|
