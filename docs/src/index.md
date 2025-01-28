@@ -8,7 +8,7 @@ A Fourier Galerkin method solution to nonlinear waves propagating over topograph
 
 ## Overview
 
-[`SpectralWaves.jl`](https://github.com/mcpaprota/SpectralWaves.jl) is a Julia package for simulation of nonlinear waves propagating over arbitrary topography under potential flow assumptions. The solution is derived using a Fourier Galerkin spectral method in terms of amplitudes of free-surface elevation and velocity potential, while inverse Fourier transform is used to get a phase-resolved wave field. Four wave generation mechanisms are supported - initial conditions, linear wavemaker forcing, pressure forcing (to be implemented), moving bottom.
+[`SpectralWaves.jl`](https://github.com/mcpaprota/SpectralWaves.jl) is a Julia package for simulation of nonlinear waves propagating over arbitrary topography under potential flow assumptions. The solution is derived using a Fourier Galerkin spectral method in terms of amplitudes of free-surface elevation and velocity potential, while inverse Fourier transform is used to get a phase-resolved wave field. Four wave generation mechanisms are supported - initial conditions, linear wavemaker forcing, pressure forcing (to be implemented), moving bottom. 
 
 ## Wave problem
 
@@ -58,7 +58,7 @@ where ``\kappa_i=i2\pi/\ell`` are solution eigenvalues corresponding to ``I`` in
 
 ### Taylor series expansions
 
-The solution to the wave problem is achieved by introducing Fourier series expansions presented in _table 2_ to Taylor series expansions of boundary conditions presented in _table 1_. As a result, we get two evolution equations of free-surface elevation and velocity potential (from the kinematic and dynamic free-surface boundary conditions) and a set of linear equations relating velocity potential coefficients of a homogeneous flat-bottom and corrugated problem (from the bottom boundary condition). In _table 3_, we provide implementation-ready forms of the solution equations.
+The solution to the wave problem is achieved by introducing Fourier series expansions presented in _table 2_ to Taylor series expansions of boundary conditions presented in _table 1_. As a result, we get two evolution equations of free-surface elevation and velocity potential (from the kinematic and dynamic free-surface boundary conditions) and a set of linear equations (SLE) relating velocity potential coefficients of a homogeneous flat-bottom and corrugated problem (from the bottom boundary condition). In _table 3_, we provide implementation-ready forms of the solution equations.
 
 _Table 3: Implementation-ready forms of the solution equations._
 
@@ -91,4 +91,13 @@ where
 
 ### Numerics
 
-Provided that initial conditions with respect to ``\mathbf{\hat{\phi}}``, ``\mathbf{\dot{\phi}}``, ``\mathbf{\hat{\psi}}``, ``\mathbf{\dot{\psi}}``, ``\mathbf{\hat{\eta}}``, ``\mathbf{\dot{\eta}}`` are known and the bottom and its evolution is prescribed in terms of ``\mathbf{\hat{\beta}}`` and ``\mathbf{\dot{\beta}}``, respectively, we apply time-stepping procedure to get the solution. It is based on iterative application of evolution equations and solving the system of linear equations at each time step until a desired accuracy is reached.
+Provided that initial conditions with respect to ``\mathbf{\hat{\phi}}``, ``\mathbf{\dot{\phi}}``, ``\mathbf{\hat{\psi}}``, ``\mathbf{\dot{\psi}}``, ``\mathbf{\hat{\eta}}``, ``\mathbf{\dot{\eta}}`` are known and the bottom and its evolution is prescribed in terms of ``\mathbf{\hat{\beta}}`` and ``\mathbf{\dot{\beta}}``, respectively, we apply time-stepping procedure to get the solution. It is based on iterative application of evolution equations and solving the system of linear equations at each time step until a desired accuracy is reached. 
+
+An Adams-Bashforth-Moulton time-stepping method is chosen and is used according to Last Point Approximation scheme, where the predictor is applied to the velocity potential amplitudes and the corrector to the free-surface elevation amplitudes. Below the simplest formulas of ``\mathcal{O}(1)`` are provided
+
+|   |   |
+|:--|:--|
+|``\hat{\phi}_i(t+\Delta t) = \hat{\phi}_i(t) + \Delta t\dot{\phi}_i(t) ``| AB predictor ``\mathcal{O}(1)``|
+|``\hat{\eta}_i(t+\Delta t) = \hat{\eta}_i(t) + \Delta t\dot{\eta}_i(t + \Delta t) ``| AM corrector ``\mathcal{O}(1)``|
+
+In between predictor and corrector evaluations and at each iteration, a system of linear equations matching ``\hat{\phi}_i`` and ``\hat{\psi}_i`` coefficients is solved. In case of static bottom topography, an initial factorization of SLE coefficients matrix is employed for efficiency.

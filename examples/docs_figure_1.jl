@@ -5,7 +5,7 @@ include("../../src/plotting.jl")
 
 # Figure size parameters:
 aspect = 2 # aspect ratio (width/height)
-width = 800 # figure width (px)
+width = 600 # figure width (px)
 height = width / aspect # figure height (px)
 
 # Input data:
@@ -17,10 +17,10 @@ x = range(0, ℓ, length = 100) # x-coordinates (m)
 
 # Plot:
 set_theme!(theme_latexfonts())
-update_theme!(fontsize=18)
+update_theme!(fontsize=16)
 fig = Figure(size = (width, height))
 ax = Axis(fig[1, 1],
-    limits=(-0.01ℓ, 1.01ℓ, -1.1d, 0.4d),
+    limits=(-0.01ℓ, 1.01ℓ, -1.1d, 0.45d),
     aspect=aspect,)
 aspect2 = 1.02ℓ / 1.4d / aspect
 Δ = 3 # label offset
@@ -35,11 +35,11 @@ lines!(ax, [0, 0, 2π, 2π, 0], [-d, 0, 0, -d, -d],
 lines!(ax, [0, 0.7d], [0, 0], color = :black, linewidth = 2) # x-axis
 lines!(ax, [0, 0], [0, 0.7d / aspect2], color = :black, linewidth = 2) # z-axis
 scatter!(ax, [0.8d, 0], [0, 0.8d / aspect2],
-    color=:black, markersize = 12,
+    color=:black, markersize = 10,
     marker=arrow_head,
     rotation=[3π / 2, 0]) # axis arrows
 scatter!(ax, [0, 0, 2π, 2π], [-d, 0, 0, -d],
-    color=:white, markersize=10, strokewidth=0.5) # fluid domain rectangle corners
+    color=:white, markersize=8, strokewidth=0.5) # fluid domain rectangle corners
 text!(ax, [0, 0, 2π, 2π], [-d, 0, 0, -d];
     text=[L"(0, -d)", L"(0, \, 0)", L"(ℓ, \, 0)", L"(ℓ, -d)"],
     align=[(:left, :bottom), (:left, :top), (:right, :top), (:right, :bottom)],
