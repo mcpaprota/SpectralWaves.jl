@@ -39,7 +39,7 @@ nothing # hide
 We initialize wave problem using `init_problem` function.
 
 ```@example 1
-κ, η̂, η̇, β̂, β̇, ϕ̂, ϕ̇, ψ̂, ψ̇, p̂, χ, ξ, ζ, 𝒯, 𝒮, O = init_problem(ℓ, d, ℐ, N; O=4)
+κ, η̂, η̇, β̂, β̇, ϕ̂, ϕ̇, ψ̂, ψ̇, p̂, χ, ξ, ζ, 𝒯, 𝒮, O = init_problem(ℓ, d, ℐ, N)
 nothing # hide
 ```
 
@@ -64,10 +64,10 @@ t = range(start = 0, stop = N*Δt, step = Δt) # time vector
 set_theme!(theme_latexfonts()) # use latex fonts
 update_theme!(fontsize=10)
 fig = Figure(size = (400, 300))
-ax = Axis(fig[1, 1], xlabel = L"t/T", ylabel = L"4η̂/H", xticks = 0:0.1:N, yticks = -1:0.5:1)
-lines!(ax, t / T, 4 * abs.(η̂[1, O:end]) / H, label = L"|η̂|")
-lines!(ax, t / T, 4 * real.(η̂[1, O:end]) / H, label = L"Re(η̂)")
-lines!(ax, t / T, 4 * imag.(η̂[1, O:end]) / H, label = L"Im(η̂)")
+ax = Axis(fig[1, 1], xlabel = L"t/T", ylabel = L"4\hat{\eta}/H", xticks = 0:0.1:N, yticks = -1:0.5:1)
+lines!(ax, t / T, 4 * abs.(η̂[1, O:end]) / H, label = L"|\hat{\eta}|")
+lines!(ax, t / T, 4 * real.(η̂[1, O:end]) / H, label = L"Re(\hat{\eta})")
+lines!(ax, t / T, 4 * imag.(η̂[1, O:end]) / H, label = L"Im(\hat{\eta})")
 axislegend(ax, position = :lb)
 fig
 ```
@@ -78,8 +78,12 @@ Now, if we want to plot a time-series of free-surface elevation at some location
 x_0 = ℓ/2
 η(n) = inverse_fourier_transform(η̂[:, n], κ, x_0)
 fig = Figure(size = (400, 300))
-ax = Axis(fig[1, 1], xlabel = "t (s)", ylabel = "η (m)")
+ax = Axis(fig[1, 1], xlabel = L"$t$ (s)", ylabel = L"$\eta$ (m)")
 lines!(ax, t, η.(O:N+O), color = :blue, linewidth = 2)
-limits!(ax, 0, ℓ / 2, -H, H)
+limits!(ax, 0, T, -H, H)
 fig
+```
+
+```@example 1
+η(O), η(N+O), t
 ```
