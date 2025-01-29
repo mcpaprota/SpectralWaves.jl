@@ -4,21 +4,11 @@ authors = ["Maciej Paprota <mapap@ibwpan.gda.pl> and contributors"]
 version = "1.0.0-DEV"
 
 [deps]
-BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
-CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
-Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
-LiveServer = "16fef848-5104-11e9-1b77-fb7a48bbb589"
 ProgressMeter = "92933f4c-e287-5a05-a399-4b506db050ca"
 
 [compat]
-BenchmarkTools = "1.5.0"
-CairoMakie = "0.13.0"
-Documenter = "1.8.0"
-GLMakie = "0.11.2"
 LinearAlgebra = "1.11.0"
-LiveServer = "1.4.0"
 ProgressMeter = "1.10.2"
 julia = "1.10"
 
