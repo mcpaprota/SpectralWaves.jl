@@ -5,7 +5,7 @@ using GLMakie
 
 # Define fluid domain parameters
 d = 1.0 # water depth (m)
-ℓ = 100.0 # fluid domain length (m)
+ℓ = 50.0 # fluid domain length (m)
 
 # Define numerical model parameters
 M_s = 2 # FSBC Taylor series order
@@ -15,11 +15,11 @@ M_b = 4 # BBC Taylor series order
 # Define moving bottom parameters
 h = 0.1 # bottom obstacle height (m)
 μ = 0.2 # bottom obstacle relative length
-Fr = 1.0 # bottom obstacle Froude number
+Fr = 0.5 # bottom obstacle Froude number
 λ = d / μ # bottom obstacle characteristic length (m)
 T = λ / sqrt(g * d) # bottom obstacle characteristic period (s)
-nΔt = 200 # number of time steps per wave period
-nT = 5 # number of simulated obstacle periods
+nΔt = 100 # number of time steps per wave period
+nT = 1 # number of simulated obstacle periods
 Δt = T / nΔt # time step (s)
 t₀ = 0.0 # initial time (s)
 τ = nT * T # total simulation time (s)
