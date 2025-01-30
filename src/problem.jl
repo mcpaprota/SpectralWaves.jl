@@ -29,7 +29,7 @@ struct Problem
     ℐ::Integer
     N::Integer
     O::Integer
-    κ::Vector{Number}
+    κ::AbstractRange{<:Number}
     η̂::Matrix{Complex}
     η̇::Matrix{Complex}
     β̂::Matrix{Complex}

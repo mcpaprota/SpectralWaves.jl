@@ -17,7 +17,9 @@ function linear_regular_wave!(p::Problem, H, L, nΔt)
     return T, Δt
 end
 
-function linear_wavemaker!(χ, ξ, ζ, H, L, d, nΔt, nT, nT₀, O)
+function linear_wavemaker!(p::Problem, H, L, nΔt, nT, nT₀)
+    χ, ξ, ζ = p.χ, p.ξ, p.ζ
+    d, O = p.d, p.O
     a = H / 2 # wave amplitude (m)
     k = 2π / L # wave number (rad/m)
     ω = √(g * k * tanh(k * d)) # angular wave frequency (rad/s)
