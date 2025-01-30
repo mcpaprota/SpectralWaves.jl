@@ -44,11 +44,15 @@ struct Problem
     ζ::Vector{Number}
     𝒯::Vector{Number}
     𝒮::Vector{Number}
-    function Problem(ℓ::Number, d::Number, ℐ::Integer, N::Integer; O = 4)
+    function Problem(ℓ::Number, d::Number, ℐ::Integer, N::Integer; O = 4, static_bottom = true)
         κ = 2π / ℓ * (-ℐ:ℐ)
         η̂ = complex(zeros(2ℐ + 1, N+O))
         η̇ = complex(zeros(2ℐ + 1, N+O))
-        β̂ = complex(zeros(2ℐ + 1, N+O))
+        if static_bottom
+            β̂ = complex(zeros(2ℐ + 1, 1))
+        else
+            β̂ = complex(zeros(2ℐ + 1, N+O))
+        end
         β̇ = complex(zeros(2ℐ + 1, N+O))
         ϕ̂ = complex(zeros(2ℐ + 1, N+O))
         ϕ̇ = complex(zeros(2ℐ + 1, N+O))
