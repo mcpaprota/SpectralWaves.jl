@@ -3,34 +3,41 @@
 using SpectralWaves
 using GLMakie
 
-# Define fluid domain and wave parameters
+# Define fluid domain
 d = 1.0 # water depth (m)
-H = 0.02 # wave height (m)
-L = 5.0 # wavelength (m)
 ℓ = 100.0 # fluid domain length (m)
 
+# Define wave parameters
+H = 0.02 # wave height (m)
+L = 5.0 # wavelength (m)
+k = 2π / L # wave number (rad/m)
+ω = sqrt(g * k * tanh(k * d)) # angular wave frequency (rad/s)
+T = 2π / ω # wave period (s)
+
 # Define numerical model parameters
-M_s = 0 # FSBC Taylor series order (linear wave)
 M_b = 30 # BBC Taylor series order (horizontal bottom)
-ℐ = 100 # number of harmonics
+ℐ = 200 # number of harmonics
 nΔt = 200 # number of time steps per wave period
-nT = 20 # number of wave periods
+Δt = T / nΔt # time step (s)
+nT = 30 # number of wave periods
 nT₀ = 5 # number of ramped wave periods
-N = nΔt * nT # number of time steps
+t₀ = 0.0 # initial time (s)
+τ = nT * T # total simulation time (s)
+t = range(start = t₀, stop = τ, step = Δt) # time range
 
 # Initialize wave problem
-p = Problem(ℓ, d, ℐ, N)
+p = Problem(ℓ, d, ℐ, t; M_b=M_b)
 
 # Define wavemaker motion
-T, Δt, t = linear_wavemaker!(p, H, L, nΔt, nT, nT₀)
+linear_wavemaker!(p, H, T, L, nT₀)
 
 # Define bathymetry - slope
-h = 0.8 # slope height (m)
+h = 0.97 # slope height (m)
 p.β̂[:, 1] = @. -4h / 3 * sinc(p.κ * ℓ / 3π)^2
 p.β̂[ℐ+1, 1] = 2h / 3
 
 # Solve wave problem
-solve_problem!(p, M_s, M_b, Δt)
+solve_problem!(p)
 
 # Define free-surface elevation
 η₁(x, n) = inverse_fourier_transform(p.η̂[:, n], p.κ, x)
@@ -48,7 +55,7 @@ lines!(ax, x, β .- d, color = :yellow, linewidth = 2)
 limits!(ax, 0, ℓ / 2, -d, 2H)
 display(fig)
 
-for n in p.O:10:N
+for n in p.O:10:p.N
     η₀[] = η(n)
     sleep(0.001)
 end

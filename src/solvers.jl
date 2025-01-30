@@ -100,7 +100,7 @@ end
 
 
 """
-    solve_problem!(η̂, η̇, ϕ̂, ϕ̇, ψ̂, ψ̇, β̂, β̇, p̂, κ, 𝒯, 𝒮, ℐ, M_s, M_b, Δt, O, N, χ, ξ, ζ, ℓ, d; static_bottom=true)
+    solve_problem!(p::Problem)
 
 Calculate solution coefficients `η̂`, `η̇`, `ϕ̂`, `ϕ̇`, `ψ̂`, `ψ̇` of the wave problem.
 
@@ -135,16 +135,17 @@ Keyword arguments:
 - `static_bottom` is a boolean flag to indicate whether the bottom is static.
 
 """
-function solve_problem!(p::Problem, M_s, M_b, Δt; static_bottom=true)
-    ℓ, d, ℐ, N, O = p.ℓ, p.d, p.ℐ, p.N, p.O
+function solve_problem!(p::Problem)
+    ℓ, d = p.ℓ, p.d
+    ℐ, Δt, N, O, M_s, M_b, F = p.ℐ, p.Δt, p.N, p.O, p.M_s, p.M_b, p.F
     ϕ̂, ϕ̇, ψ̂, ψ̇ = p.ϕ̂, p.ϕ̇, p.ψ̂, p.ψ̇
     η̂, η̇ = p.η̂, p.η̇
     β̂, β̇ = p.β̂, p.β̇
     ξ, ζ = p.ξ, p.ζ
     κ, 𝒯, 𝒮 = p.κ, p.𝒯, p.𝒮
+    static_bottom = p.static_bottom
     # initialize auxiliary variables
     c_ab, c_am = time_integration_coeffs(O)
-    F = factorial_lookup(max(M_s, M_b))
     κ′ = @.  1 / κ * (κ ≠ 0)
     κ″ = @.  1 / κ^2 * (κ ≠ 0)
     # initialize nonlinear bottom boundary condition if necessary

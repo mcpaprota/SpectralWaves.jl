@@ -3,29 +3,35 @@
 using SpectralWaves
 using GLMakie
 
-# Define fluid domain and wave parameters
+# Define fluid domain
 d = 1.0 # water depth (m)
+ℓ = 100.0 # fluid domain length (m)
+
+# Define wave parameters
 H = 0.2 # wave height (m)
-L = 5.0 # wavelength (m)
-ℓ = 200.0 # fluid domain length (m)
+L = 2 # wave length (m)
+k = 2π / L # wave number (rad/m)
+ω = sqrt(g * k * tanh(k * d)) # angular wave frequency (rad/s)
+T = 2π / ω # wave period (s)
 
 # Define numerical model parameters
-M_s = 0 # FSBC Taylor series order (linear wave)
-M_b = 0 # BBC Taylor series order (horizontal bottom)
 ℐ = 200 # number of harmonics
-nΔt = 200 # number of time steps per wave period
-nT = 21 # number of wave periods
+nT = 20 # number of simulated wave periods
 nT₀ = 5 # number of ramped wave periods
-N = nΔt * nT # number of time steps
+nΔt = 200 # number of time steps per wave period
+Δt = T / nΔt # time step (s)
+t₀ = 0.0 # initial time (s)
+τ = nT * T # total simulation time (s)
+t = range(start = t₀, stop = τ, step = Δt) # time range
 
 # Initialize wave problem
-p = Problem(ℓ, d, ℐ, N)
+p = Problem(ℓ, d, ℐ, t)
 
 # Define wavemaker motion
-T, Δt, t = linear_wavemaker!(p, H, L, nΔt, nT, nT₀)
+linear_wavemaker!(p, H, T, L, nT₀)
 
 # Solve wave problem
-solve_problem!(p, M_s, M_b, Δt)
+solve_problem!(p)
 
 # Define free-surface elevation
 η₁(x, n) = inverse_fourier_transform(p.η̂[:, n], p.κ, x)
@@ -40,7 +46,7 @@ lines!(ax, x, η₀, color = :blue, linewidth = 2)
 limits!(ax, 0, ℓ / 2, -H, H)
 display(fig)
 
-for n in p.O:10:N
+for n in p.O:10:p.N
     η₀[] = η(n)
     sleep(0.001)
 end
