@@ -9,6 +9,7 @@ include("solvers.jl")
 include("waves.jl")
 
 # inner functions exported only for testing for now
+export Problem
 export g, ϵ, J
 export convolve, toeplitz, convolution_power, relative_error, absolute_error
 export convolution_range, factorial_lookup, inverse_fourier_transform, fourier_transform

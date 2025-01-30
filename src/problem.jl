@@ -1,10 +1,12 @@
-"""
-    init_problem(ℓ::Number, d::Number, ℐ::Integer, N::Integer; O = 4)
+# SPDX-License-Identifier: MIT
 
-Initialize IBVP wave problem corresponding to a fluid domain of length `ℓ` and depth `d`
+"""
+    Problem(ℓ::Number, d::Number, ℐ::Integer, N::Integer; O = 4)
+
+Construct a IBV Problem object corresponding to a fluid domain of length `ℓ` and depth `d`
 with `ℐ` harmonics and `N` time steps.
 
-Output is a tuple `(η̂, η̇, β̂, β̃, β̇, ϕ̂, ϕ̇, ψ̂, ψ̇, p̂, χ, ξ, ζ, 𝒯, 𝒮, O)`, where:
+- `κ` are wave numbers (rad/m),
 - `η̂` are free-surface elevation amplitudes (m),
 - `η̇` are free-surface vertical velocity amplitudes (m/s),
 - `β̂` are bottom-surface elevation amplitudes (m),
@@ -19,26 +21,47 @@ Output is a tuple `(η̂, η̇, β̂, β̃, β̇, ϕ̂, ϕ̇, ψ̂, ψ̇, p̂, �
 - `ζ` is wavemaker paddle acceleration (m/s²),
 - `𝒯` are hyperbolic tangent lookup values,
 - `𝒮` are hyperbolic secant lookup values,
-- `O` is the order of the time-stepping scheme.
 
 """
-function init_problem(ℓ::Number, d::Number, ℐ::Integer, N::Integer; O = 4)
-    κ = 2π / ℓ * (-ℐ:ℐ)
-    η̂ = complex(zeros(2ℐ + 1, N+O))
-    η̇ = complex(zeros(2ℐ + 1, N+O))
-    β̂ = complex(zeros(2ℐ + 1, N+O))
-    β̇ = complex(zeros(2ℐ + 1, N+O))
-    ϕ̂ = complex(zeros(2ℐ + 1, N+O))
-    ϕ̇ = complex(zeros(2ℐ + 1, N+O))
-    ψ̂ = complex(zeros(2ℐ + 1, N+O))
-    ψ̇ = complex(zeros(2ℐ + 1, N+O))
-    p̂ = complex(zeros(2ℐ + 1, N+O))
-    χ = zeros(N+O)
-    ξ = zeros(N+O)
-    ζ = zeros(N+O)
-    𝒯 = tanh.(κ * d)
-    𝒮 = sech.(κ * d)
-    return κ, η̂, η̇, β̂, β̇, ϕ̂, ϕ̇, ψ̂, ψ̇, p̂, χ, ξ, ζ, 𝒯, 𝒮, O
+struct Problem
+    ℓ::Number
+    d::Number
+    ℐ::Integer
+    N::Integer
+    O::Integer
+    κ::Vector{Number}
+    η̂::Matrix{Complex}
+    η̇::Matrix{Complex}
+    β̂::Matrix{Complex}
+    β̇::Matrix{Complex}
+    ϕ̂::Matrix{Complex}
+    ϕ̇::Matrix{Complex}
+    ψ̂::Matrix{Complex}
+    ψ̇::Matrix{Complex}
+    p̂::Matrix{Complex}
+    χ::Vector{Number}
+    ξ::Vector{Number}
+    ζ::Vector{Number}
+    𝒯::Vector{Number}
+    𝒮::Vector{Number}
+    function Problem(ℓ::Number, d::Number, ℐ::Integer, N::Integer; O = 4)
+        κ = 2π / ℓ * (-ℐ:ℐ)
+        η̂ = complex(zeros(2ℐ + 1, N+O))
+        η̇ = complex(zeros(2ℐ + 1, N+O))
+        β̂ = complex(zeros(2ℐ + 1, N+O))
+        β̇ = complex(zeros(2ℐ + 1, N+O))
+        ϕ̂ = complex(zeros(2ℐ + 1, N+O))
+        ϕ̇ = complex(zeros(2ℐ + 1, N+O))
+        ψ̂ = complex(zeros(2ℐ + 1, N+O))
+        ψ̇ = complex(zeros(2ℐ + 1, N+O))
+        p̂ = complex(zeros(2ℐ + 1, N+O))
+        χ = zeros(N+O)
+        ξ = zeros(N+O)
+        ζ = zeros(N+O)
+        𝒯 = tanh.(κ * d)
+        𝒮 = sech.(κ * d)
+        new(ℓ, d, ℐ, N, O, κ, η̂, η̇, β̂, β̇, ϕ̂, ϕ̇, ψ̂, ψ̇, p̂, χ, ξ, ζ, 𝒯, 𝒮)
+    end
 end
 
 """

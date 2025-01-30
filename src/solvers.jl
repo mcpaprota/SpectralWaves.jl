@@ -135,7 +135,11 @@ Keyword arguments:
 - `static_bottom` is a boolean flag to indicate whether the bottom is static.
 
 """
-function solve_problem!(η̂, η̇, ϕ̂, ϕ̇, ψ̂, ψ̇, β̂, β̇, p̂, κ, 𝒯, 𝒮, ℐ, M_s, M_b, Δt, O, N, χ, ξ, ζ, ℓ, d; static_bottom=true)
+function solve_problem!(p::Problem, M_s, M_b, Δt; static_bottom=true)
+    ℓ, d, ℐ, N, O = p.ℓ, p.d, p.ℐ, p.N, p.O
+    β̂, β̇ = p.β̂, p.β̇
+    χ, ξ, ζ = p.χ, p.ξ, p.ζ
+    κ, 𝒯, 𝒮 = p.κ, p.𝒯, p.𝒮
     # initialize auxiliary variables
     c_ab, c_am = time_integration_coeffs(O)
     F = factorial_lookup(max(M_s, M_b))
@@ -153,28 +157,28 @@ function solve_problem!(η̂, η̇, ϕ̂, ϕ̇, ψ̂, ψ̇, β̂, β̇, p̂, κ,
     if M_s > 0
         Φ̇′, Φ̇″, Φ̂′, Φ̂″, Φ̃′, Φ̃″ = init_nonlinear_surface_boundary_condition(κ, 𝒯, 𝒮, ℐ, M_s)
         # define short calls to nonlinear correction functions
-        δη̇(n) = nonlinear_kfsbc_correction(η̂[:, n], ϕ̂[:, n], ψ̂[:, n], Φ̂′, Φ̂″, Φ̃′, Φ̃″, κ, κ′, ℐ, F, M_s, ξ[n], ℓ)
-        δϕ̇(n) = nonlinear_dfsbc_correction(η̂[:, n], ϕ̂[:, n], ϕ̇[:, n], ψ̂[:, n], ψ̇[:, n], Φ̇′, Φ̇″, Φ̂′, Φ̂″, Φ̃′, Φ̃″, κ′, ℐ, F, M_s, ξ[n], ζ[n], ℓ, d)
+        δη̇(n) = nonlinear_kfsbc_correction(p.η̂[:, n], p.ϕ̂[:, n], p.ψ̂[:, n], Φ̂′, Φ̂″, Φ̃′, Φ̃″, κ, κ′, ℐ, F, M_s, ξ[n], ℓ)
+        δϕ̇(n) = nonlinear_dfsbc_correction(p.η̂[:, n], p.ϕ̂[:, n], p.ϕ̇[:, n], p.ψ̂[:, n], p.ψ̇[:, n], Φ̇′, Φ̇″, Φ̂′, Φ̂″, Φ̃′, Φ̃″, κ′, ℐ, F, M_s, ξ[n], ζ[n], ℓ, d)
     end
     # start time-marching loop
     for n in O:N+O-1
         j = 0
         # initial first guess of acceleration potential amplitudes
         if (n > O) && (M_s > 0)
-            @views ϕ̇[:, n] = ϕ̇[:, n-1]
-            @views ψ̇[:, n] = ψ̇[:, n-1]
+            @views p.ϕ̇[:, n] = p.ϕ̇[:, n-1]
+            @views p.ψ̇[:, n] = p.ψ̇[:, n-1]
         end
         # initialize loop for iterative solver to wave problem
         while j < J
             # apply dynamic free-surface boundary condition
             if M_s == 0
-                @views ϕ̇[:, n] = -g * η̂[:, n] + 2ζ[n] * κ″ / ℓ
+                @views p.ϕ̇[:, n] = -g * p.η̂[:, n] + 2ζ[n] * κ″ / ℓ
             else
-                @views ϕ̇[:, n] = -g * η̂[:, n] + 2ζ[n] * κ″ / ℓ - δϕ̇(n)
+                @views p.ϕ̇[:, n] = -g * p.η̂[:, n] + 2ζ[n] * κ″ / ℓ - δϕ̇(n)
             end
-            ϕ̇[ℐ+1, n] = -g * η̂[ℐ+1, n] - ζ[n] * (d^2 / ℓ - ℓ / 12)
+            p.ϕ̇[ℐ+1, n] = -g * p.η̂[ℐ+1, n] - ζ[n] * (d^2 / ℓ - ℓ / 12)
             # apply Adams-Bashforth predictor
-            @views ϕ̂[:, n+1] = ϕ̂[:, n] + Δt * sum(c_ab[i] * ϕ̇[:, n+1-i] for i in 1:O)
+            @views p.ϕ̂[:, n+1] = p.ϕ̂[:, n] + Δt * sum(c_ab[i] * p.ϕ̇[:, n+1-i] for i in 1:O)
             # apply nonlinear bottom boundary condition if necessary
             if M_b > 0
                 if !static_bottom
@@ -184,21 +188,21 @@ function solve_problem!(η̂, η̇, ϕ̂, ϕ̇, ψ̂, ψ̇, β̂, β̇, p̂, κ,
                 ψ̂[:, n+1] = A″ \ b
             end
             # apply kinematic free-surface boundary condition
-            @views η̇[:, n+1] = @. κ * 𝒯 * ϕ̂[:, n+1] + ψ̂[:, n+1] * 𝒮
-            η̇[ℐ+1, n+1] += 2ξ[n+1] * d / ℓ
+            @views p.η̇[:, n+1] = @. κ * 𝒯 * p.ϕ̂[:, n+1] + p.ψ̂[:, n+1] * 𝒮
+            p.η̇[ℐ+1, n+1] += 2ξ[n+1] * d / ℓ
             if M_s > 0
-                @views η̇[:, n+1] -= δη̇(n+1)
+                @views p.η̇[:, n+1] -= δη̇(n+1)
             end
-            η̂ₚ = η̂[:, n+1]
+            η̂ₚ = p.η̂[:, n+1]
             # apply Adams-Moulton corrector
-            @views η̂[:, n+1] = η̂[:, n] + Δt * sum(c_am[i] * η̇[:, n+2-i] for i in 1:O)
+            @views p.η̂[:, n+1] = p.η̂[:, n] + Δt * sum(c_am[i] * p.η̇[:, n+2-i] for i in 1:O)
             if M_s > 0
                 # check accuracy of the solution
-                general_error(η̂ₚ, η̂[:, n+1]) < ϵ ? break : j += 1
+                general_error(η̂ₚ, p.η̂[:, n+1]) < ϵ ? break : j += 1
                 # apply central difference scheme
-                n == O ? ψ̇[:, n] = ψ̂[:, n+1] / Δt : ψ̇[:, n] = (ψ̂[:, n+1] - ψ̂[:, n-1]) / 2Δt
+                n == O ? p.ψ̇[:, n] = p.ψ̂[:, n+1] / Δt : p.ψ̇[:, n] = (p.ψ̂[:, n+1] - p.ψ̂[:, n-1]) / 2Δt
                 # check simulation blow-up
-                isfinite(norm(η̂[:, n+1])) || return false
+                isfinite(norm(p.η̂[:, n+1])) || return false
             else
                 break
             end
