@@ -8,7 +8,7 @@ d = 1.0 # water depth (m)
 ℓ = 50.0 # fluid domain length (m)
 
 # Define numerical model parameters
-M_s = 2 # FSBC Taylor series order
+M_s = 0 # FSBC Taylor series order
 M_b = 4 # BBC Taylor series order
 ℐ = 100 # number of harmonics
 
@@ -19,7 +19,7 @@ Fr = 0.5 # bottom obstacle Froude number
 λ = d / μ # bottom obstacle characteristic length (m)
 T = λ / sqrt(g * d) # bottom obstacle characteristic period (s)
 nΔt = 100 # number of time steps per wave period
-nT = 1 # number of simulated obstacle periods
+nT = 10 # number of simulated obstacle periods
 Δt = T / nΔt # time step (s)
 t₀ = 0.0 # initial time (s)
 τ = nT * T # total simulation time (s)
@@ -38,13 +38,11 @@ end
 solve_problem!(p)
 
 # Define free-surface elevation
-η₁(x, n) = inverse_fourier_transform(p.η̂[:, n], p.κ, x)
-β₁(x, n) = inverse_fourier_transform(p.β̂[:, n], p.κ, x)
+η(x, n) = water_surface(p, x, n)
+β(x, n) = bottom_surface(p, x, n)
 x = range(- ℓ / 2, ℓ / 2, length = 1000)
-η(n) = η₁.(x, n)
-β(n) = β₁.(x, n)
-η₀  = Observable(η(p.O))
-β₀  = Observable(β(p.O) .- d)
+η₀  = Observable(η.(x, p.O))
+β₀  = Observable(β.(x, p.O) .- d)
 
 # animate free-surface elevation
 fig = Figure(size = (800, 400))
@@ -55,7 +53,7 @@ limits!(ax, - ℓ / 2, ℓ / 2, -d, d)
 display(fig)
 
 for n in p.O:10:p.N
-    η₀[] = η(n)
-    β₀[] = β(n) .- d
+    η₀[] = η.(x, n)
+    β₀[] = β.(x, n) .- d
     sleep(0.001)
 end

@@ -66,27 +66,20 @@ solve_problem!(p)
 nothing # hide
 ```
 
-Finally we are ready to plot evolution of absolute, real and imaginary values of a complex wave amplitude `η̂` over time `t` corresponding to one wave period.
+We may define a function that calculates free-surface elevation at specified location `x` and time instant `n` using `water_surface` function.
 
 ```@example 1
-set_theme!(theme_latexfonts())
-fig = Figure(size = (400, 300))
-ax = Axis(fig[1, 1], xlabel = L"t/T", ylabel = L"4η̂/H", xticks = 0:0.1:p.N, yticks = -1:0.5:1)
-lines!(ax, t / T, 4 * abs.(p.η̂[1, p.O:end]) / H, label = L"|η̂|")
-lines!(ax, t / T, 4 * real.(p.η̂[1, p.O:end]) / H, label = L"Re(η̂)")
-lines!(ax, t / T, 4 * imag.(p.η̂[1, p.O:end]) / H, label = L"Im(η̂)")
-axislegend(ax, position = :lb)
-fig
+η(x, n) = water_surface(p, x, n)
+nothing # hide
 ```
 
-Now, if we want to plot a time-series of free-surface elevation at some location (e.g. corresponding to the middle of the fluid domain ``x_0 = \ell/2``) ``\eta(t[n], x_0)``, we use an `inverse_fourier_transform` function, like so
+Finally we are ready to plot results. Here, we plot the whole time series of free-surface elevation corresponding to a middle of a domain.
 
 ```@example 1
-x_0 = ℓ/2
-η(n) = inverse_fourier_transform(p.η̂[:, n], p.κ, x_0)
-fig = Figure(size = (400, 300))
-ax = Axis(fig[1, 1], xlabel = L"$t$ (s)", ylabel = L"$\eta$ (m)")
-lines!(ax, t, η.(p.O:p.N+p.O), color = :blue, linewidth = 2)
-limits!(ax, 0, T, -H, H)
+set_theme!(merge(theme_latexfonts(), Theme(fontsize=9))) # set latex fonts of size 9
+fig = Figure(size = (400, 200)) 
+ax = Axis(fig[1, 1], xlabel = L"t/T", ylabel = L"\eta/H")
+lines!(ax, t / T, η.(ℓ/2, 1:length(t)) / H)
+limits!(ax, 0, 1, -1, 1) 
 fig
 ```

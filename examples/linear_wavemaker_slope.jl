@@ -40,22 +40,20 @@ p.β̂[ℐ+1, 1] = 2h / 3
 solve_problem!(p)
 
 # Define free-surface elevation
-η₁(x, n) = inverse_fourier_transform(p.η̂[:, n], p.κ, x)
-β₁(x) = inverse_fourier_transform(p.β̂[:, 1], p.κ, x)
+η(x, n) = water_surface(p, x, n)
+β(x) = bottom_surface(p, x)
 x = range(0, ℓ / 2, length = 1000)
-η(n) = η₁.(x, n)
-β = β₁.(x)
-η₀  = Observable(η(p.O))
+η₀  = Observable(η.(x, p.O))
 
 # animate free-surface elevation
 fig = Figure(size = (800, 400))
 ax = Axis(fig[1, 1], xlabel = "x (m)", ylabel = "η (m)")
 lines!(ax, x, η₀, color = :blue, linewidth = 2)
-lines!(ax, x, β .- d, color = :yellow, linewidth = 2)
+lines!(ax, x, β.(x) .- d, color = :yellow, linewidth = 2)
 limits!(ax, 0, ℓ / 2, -d, 2H)
 display(fig)
 
 for n in p.O:10:p.N
-    η₀[] = η(n)
+    η₀[] = η.(x, n)
     sleep(0.001)
 end

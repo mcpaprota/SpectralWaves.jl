@@ -34,10 +34,9 @@ linear_wavemaker!(p, H, T, L, nT₀)
 solve_problem!(p)
 
 # Define free-surface elevation
-η₁(x, n) = inverse_fourier_transform(p.η̂[:, n], p.κ, x)
 x = range(0, ℓ / 2, length = 500)
-η(n) = η₁.(x, n)
-η₀  = Observable(η(p.O))
+η(x, n) = water_surface(p, x, n)
+η₀  = Observable(η.(x, p.O))
 
 # animate free-surface elevation
 fig = Figure(size = (800, 400))
@@ -47,6 +46,6 @@ limits!(ax, 0, ℓ / 2, -H, H)
 display(fig)
 
 for n in p.O:10:p.N
-    η₀[] = η(n)
+    η₀[] = η.(x, n)
     sleep(0.001)
 end
