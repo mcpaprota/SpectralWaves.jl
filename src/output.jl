@@ -5,7 +5,7 @@ function water_surface(p::Problem, x::Real, n::Integer)
 end
 
 function bottom_surface(p::Problem, x::Real, n=1)
-    β̂, κ, O = p.β̂, p.κ, p.O
-    β = inverse_fourier_transform(β̂[:, n+O-1], κ, x)
+    β̂, κ = p.β̂, p.κ
+    β = inverse_fourier_transform(β̂[:, n], κ, x)
     return β
 end

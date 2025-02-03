@@ -45,3 +45,11 @@ function linear_wavemaker!(p::Problem, H, T, L, nT₀)
     ζ[O:end] = @. h″(t) * r(t) + 2 * h′(t) * r′(t) + h(t) * r″(t)
     return nothing
 end
+
+function surface_bump!(p::Problem, h, λ, x₀ = 0)
+    η̂, κ, ℓ, O = p.η̂, p.κ, p.ℓ, p.O
+    for n = 1:O
+        η̂[:, n] = @. h * λ * √(2π) / 4ℓ * exp(- λ^2 * κ^2 / 32) * exp(-im * κ * x₀)
+    end
+    return nothing
+end

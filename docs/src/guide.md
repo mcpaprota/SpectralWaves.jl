@@ -35,8 +35,17 @@ nothing # hide
 
 We initialize wave problem using a struct `p::Problem`.
 
-```@example 1
+```@example 0
 p = Problem(ℓ, d, ℐ, t)
 nothing # hide
+```
+
+Let an initial profile of the free surface correspond to a Gaussian bump of characteristic height ``h`` and length ``\lambda``.
+
+```@example 0
+h = 0.5d # bump height (m)
+λ = 0.5ℓ # bump length (m)
+x₀ = 0.5ℓ # bump center (m)
+gaussian_bump!(p, h, λ)
 ```
 
