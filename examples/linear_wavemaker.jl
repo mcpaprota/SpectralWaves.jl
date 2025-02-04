@@ -15,37 +15,42 @@ k = 2π / L # wave number (rad/m)
 T = 2π / ω # wave period (s)
 
 # Define numerical model parameters
-ℐ = 200 # number of harmonics
-nT = 20 # number of simulated wave periods
+ℐ = 100 # number of harmonics
+nT = 40 # number of simulated wave periods
 nT₀ = 5 # number of ramped wave periods
-nΔt = 200 # number of time steps per wave period
+nΔt = 100 # number of time steps per wave period
 Δt = T / nΔt # time step (s)
 t₀ = 0.0 # initial time (s)
 τ = nT * T # total simulation time (s)
 t = range(start = t₀, stop = τ, step = Δt) # time range
+x = range(0, ℓ, length = 1001) # spatial range
+βₙ = @. - 0.3 * cos(1.5 * x) * (cos(x) - 1) # bottom profile
 
 # Initialize wave problem
 p = Problem(ℓ, d, ℐ, t)
+p2 = Problem(ℓ, d, ℐ, t; M_b = 30)
 
 # Define wavemaker motion
 linear_wavemaker!(p, H, T, L, nT₀)
+linear_wavemaker!(p2, H, T, L, nT₀)
+
+# Define bottom profile
+#bottom_vector!(p2, x, βₙ)
+bottom_slope!(p2, 0.9d)
 
 # Solve wave problem
 solve_problem!(p)
+solve_problem!(p2)
 
-# Define free-surface elevation
-x = range(0, ℓ / 2, length = 500)
-η(x, n) = water_surface(p, x, n)
-η₀  = Observable(η.(x, p.O))
-
-# animate free-surface elevation
-fig = Figure(size = (800, 400))
-ax = Axis(fig[1, 1], xlabel = "x (m)", ylabel = "η (m)")
-lines!(ax, x, η₀, color = :blue, linewidth = 2)
-limits!(ax, 0, ℓ / 2, -H, H)
+# plot results
+η(x) = water_surface(p, x, lastindex(t))
+β(x) = bottom_surface(p, x)
+set_theme!(theme_latexfonts())
+fig = Figure()
+ax = Axis(fig[1, 1], xlabel = L"$x$ (m)", ylabel = L"$z$ (m)")
+band!(ax, x, η.(x), β.(x) .- d, color=:azure) # water bulk
+band!(ax, x, β.(x) .- d, -1.1d, color=:wheat) # bottom bulk
+lines!(ax, x, η.(x), color=:black, linewidth = 0.7) # free surface
+lines!(ax, x, β.(x) .- d, color=:black, linewidth = 0.7) # bottom surface
+limits!(ax, x[1], x[end], -1.1d, d)
 display(fig)
-
-for n in p.O:10:p.N
-    η₀[] = η.(x, n)
-    sleep(0.001)
-end

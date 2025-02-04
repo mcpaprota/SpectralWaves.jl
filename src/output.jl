@@ -9,3 +9,4 @@ function bottom_surface(p::Problem, x::Real, n=1)
     β = inverse_fourier_transform(β̂[:, n], κ, x)
     return β
 end
+

@@ -168,7 +168,7 @@ function factorial_lookup(n::Integer)
 end
 
 """
-    inverse_fourier_transform(f̂::Vector{<:Number}, ω::AbstractRange{<:Number}, x::Number)
+    inverse_fourier_transform(f̂::Vector{<:Number}, ω::AbstractRange{<:Real}, x::Real)
 
 Compute `f(x)` using expansion amplitudes `f̂` and eigenvalues `ω`.
 
@@ -178,13 +178,13 @@ julia> f̂ = [0.5, 0, 0.5]; ω = -1:1; x = π; inverse_fourier_transform(f̂, ω
 -1.0
 ```
 """
-function inverse_fourier_transform(f̂::Vector{<:Number}, ω::AbstractRange{<:Number}, x::Number)
+function inverse_fourier_transform(f̂::Vector{<:Number}, ω::AbstractRange{<:Real}, x::Real)
     f = real(sum(f̂ .* exp.(im * ω * x)))
     return f
 end
 
 """
-    fourier_transform(f::Vector{<:Number}, ω::Number, x::AbstractRange{<:Number})
+    fourier_transform(f::Vector{<:Number}, ω::Real, x::AbstractRange{<:Real})
 
 Compute `f̂(ω)` using function values `f` at points `x`.
 
@@ -195,7 +195,7 @@ julia> fourier_transform(f, ω, x)
 0.5 + 0.0im
 ```
 """
-function fourier_transform(f::Vector{<:Real}, ω::Number, x::AbstractRange{<:Number})
+function fourier_transform(f::Vector{<:Real}, ω::Real, x::AbstractRange{<:Real})
     k = ones(Integer, length(f))
     k[[1, end]] = [2, 2]
     f̂ = sum(f ./ k .* exp.(-im * ω * x)) * (x[2] - x[1]) / (x[end] - x[1])

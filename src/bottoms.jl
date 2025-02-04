@@ -29,8 +29,22 @@ Calculate `β̂` coefficients a wave problem `p` for a bottom slope of height `h
 
 """
 function bottom_slope!(p::Problem, h)
-    β̂, κ, ℓ = p.β̂, p.κ, p.ℓ
+    β̂, κ, ℓ, ℐ = p.β̂, p.κ, p.ℓ, p.ℐ
     β̂[:] = @. -4h / 3 * sinc(κ * ℓ / 3π)^2
     β̂[ℐ+1] = 2h / 3
+    return nothing
+end
+
+"""
+    bottom_vector!(p::Problem, x::AbstractRange{<:Real}, β::Vector{<:Real})
+
+Calculate `β̂` coefficients of a wave problem `p` for a bottom profile `β(x)`.
+
+"""
+function bottom_vector!(p::Problem, x::AbstractRange{<:Real}, β::Vector{<:Real})
+    β̂, κ = p.β̂, p.κ
+    for i in eachindex(κ)
+        β̂[i] = fourier_transform(β, κ[i], x)
+    end
     return nothing
 end

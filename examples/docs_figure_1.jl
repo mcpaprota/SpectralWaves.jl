@@ -26,8 +26,8 @@ aspect2 = 1.02ℓ / 1.4d / aspect
 Δ = 3 # label offset
 nx = 48 # η label position
 nx2 = 68 # β label position
-band!(ax, x, η.(x), β.(x), color=water_bulk) # water bulk
-band!(ax, x, β.(x), -1.1d, color=sand_bulk) # bottom bulk
+band!(ax, x, η.(x), β.(x), color=:azure) # water bulk
+band!(ax, x, β.(x), -1.1d, color=:wheat) # bottom bulk
 lines!(ax, x, η.(x), color=:black, linewidth = 1) # free surface
 lines!(ax, x, β.(x), color=:black, linewidth = 1) # bottom surface
 lines!(ax, [0, 0, 2π, 2π, 0], [-d, 0, 0, -d, -d],

@@ -18,6 +18,7 @@ export convolution_range, factorial_lookup, inverse_fourier_transform, fourier_t
 export init_problem, solve_problem!
 export linear_regular_wave!, linear_wavemaker!
 export water_surface, bottom_surface
-export surface_bump!, bottom_bump!
-
+export surface_bump!, bottom_bump!, bottom_step!, bottom_slope!, bottom_vector!
+export plot_fluid_domain
+export water_bulk, sand_bulk
 end
