@@ -106,7 +106,7 @@ Now, we are going to add some bottom variation by applying `bottom_bump!` to a f
 ```@example 0
 p2 = Problem(ℓ, d, ℐ, t, M_b=30)
 surface_bump!(p2, h, λ)
-h₀, λ₀, x₀ = 0.9d, 0.5ℓ, 0.5ℓ # bottom bump height, length, and offset
+h₀, λ₀ = 0.9d, 0.5ℓ # bottom bump height, length
 bottom_bump!(p2, h₀, λ₀)
 ```
 
