@@ -43,8 +43,8 @@ nothing # hide
 The free surface corresponds to a Gaussian `surface_bump!` of characteristic height ``h`` and length ``\lambda``.
 
 ```@example 0
-h = 0.3d # bump height (m)
-λ = 0.2ℓ # bump length (m)
+h = 0.4d # bump height (m)
+λ = 0.1ℓ # bump length (m)
 surface_bump!(p, h, λ)
 nothing # hide
 ```
@@ -66,24 +66,39 @@ nothing # hide
 and plot the results.
 
 ```@example 0
+η₀ = Observable(η.(x, firstindex(t))) # set free-surface observable
+title = Observable(L"t = %$(round(t[1], digits=1))\,\mathrm{s}") # set title string observable
 set_theme!(theme_latexfonts()) # set latex fonts
 fig = Figure(size = (600, 300)) # initialize a figure
 ax = Axis(fig[1, 1], 
         xlabel = L"$x$ (m)", 
-        ylabel = L"$z$ (m)") # define axis with labels
-band!(ax, x, η.(x, lastindex(t)), -d, 
-        color=:azure) # plot final water bulk
-lines!(ax, x, η.(x, lastindex(t)), 
+        ylabel = L"$z$ (m)",
+        title = title) # define axis with labels
+band!(ax, x, η₀, -d, 
+        color=:azure) # plot water bulk
+lines!(ax, x, η₀, 
         color=:black, 
-        linewidth = 1, 
-        label=L"\eta(\tau=2\,\mathrm{s})") # plot final free surface line
+        linewidth = 1) # plot free surface line
 band!(ax, x, -1.1d, - d, 
         color=:wheat) # plot bottom bulk
 hlines!(- d, 
         color=:black, 
         linewidth = 0.7) # plot bottom line
 limits!(ax, x[1], x[end], -1.1d, d) # set limits
-fig # display figure
+
+# animate free surface
+record(fig, "animation1.mp4", 1:lastindex(t);
+        framerate = 30) do n
+    η₀[] = η.(x, n)
+    title[] = L"t = %$(round(t[n], digits=1))\,\mathrm{s}"
+end
+nothing # hide
+```
+
+```@raw html
+<video width="auto" controls autoplay loop>
+<source src="../animation1.mp4" type="video/mp4">
+</video>
 ```
 
 Now, we are going to add some bottom variation by applying `bottom_bump!` to a fresh problem p2. Please note that we set bottom nonlinearity parameter `M_b=30`, while we initialize the free surface with our previous settings using `surface_bump!`.
@@ -92,7 +107,7 @@ Now, we are going to add some bottom variation by applying `bottom_bump!` to a f
 p2 = Problem(ℓ, d, ℐ, t, M_b=30)
 surface_bump!(p2, h, λ)
 h₀, λ₀, x₀ = 0.9d, 0.5ℓ, 0.5ℓ # bottom bump height, length, and offset
-bottom_bump!(p2, h₀, λ₀, x₀)
+bottom_bump!(p2, h₀, λ₀)
 ```
 
 Again, we solve the problem.
@@ -113,22 +128,38 @@ nothing # hide
 and plot the results.
 
 ```@example 0
+η₀ = Observable(η.(x, firstindex(t))) # set free-surface observable
+title = Observable(L"t = %$(round(t[1], digits=1))\,\mathrm{s}") # set title string observable
 set_theme!(theme_latexfonts()) # set latex fonts
 fig = Figure(size = (600, 300)) # initialize a figure
 ax = Axis(fig[1, 1], 
         xlabel = L"$x$ (m)", 
-        ylabel = L"$z$ (m)") # define axis with labels
-band!(ax, x, η.(x, lastindex(t)), -d, 
-        color=:azure) # plot final water bulk
-lines!(ax, x, η.(x, lastindex(t)), 
+        ylabel = L"$z$ (m)",
+        title = title) # define axis with labels
+band!(ax, x, η₀, -d, 
+        color=:azure) # plot water bulk
+lines!(ax, x, η₀, 
         color=:black, 
         linewidth = 1, 
-        label=L"\eta(\tau=2\,\mathrm{s})") # plot final free surface line
+        label=L"\eta(\tau=2\,\mathrm{s})") # plot free surface line
 band!(ax, x, β.(x) .- d, - 1.1d, 
         color=:wheat) # plot bottom bulk
 lines!(ax, x, β.(x) .- d, 
         color=:black, 
         linewidth = 1) # plot bottom line
 limits!(ax, x[1], x[end], -1.1d, d) # set limits
-fig # display figure
+
+# animate free surface
+record(fig, "animation2.mp4", 1:lastindex(t);
+        framerate = 30) do n
+    η₀[] = η.(x, n)
+    title[] = L"t = %$(round(t[n], digits=1))\,\mathrm{s}"
+end
+nothing # hide
+```
+
+```@raw html
+<video width="auto" controls autoplay loop>
+<source src="../animation2.mp4" type="video/mp4">
+</video>
 ```
