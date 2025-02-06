@@ -5,7 +5,7 @@ include("../../src/plotting.jl")
 
 # Figure size parameters:
 aspect = 2 # aspect ratio (width/height)
-width = 600 # figure width (px)
+width = 700 # figure width (px)
 height = width / aspect # figure height (px)
 
 # Input data:
@@ -46,7 +46,7 @@ text!(ax, [0, 0, 2π, 2π], [-d, 0, 0, -d];
     offset=[(Δ, Δ), (Δ, -Δ), (-Δ, -Δ), (-Δ, Δ)],
     ) # fluid domain rectangle corners labels
 text!(ax, [x[nx], x[nx2]], [η(x[nx]), β(x[nx2])];
-    text=[L"\eta(x)", L"\beta(x)"],
+    text=[L"\eta(x,t)", L"\beta(x,t)"],
     align=[(:left, :bottom), (:left, :bottom)],
     offset=[(Δ, Δ), (Δ, Δ)]) # water and bottom surface label
 text!(ax, [0.8d, 0], [0, 0.8d / aspect2],

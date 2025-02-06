@@ -11,7 +11,7 @@ julia> using SpectralWaves
 
 ## Quick start
 
-We begin our introduction with an evolution of a free surface ``\eta(x, t)`` for an initial bump of water in a domain of length ``\ell`` and still water depth ``d``.
+We begin our introduction with an evolution of a free surface for an initial bump of water in a domain of length `ℓ` and still water depth `d`.
 
 ```@example 0
 using SpectralWaves
@@ -25,7 +25,7 @@ nothing # hide
 We define a number of numerical model parameters.
 
 ```@example 0
-ℐ = 20 # number of harmonics
+ℐ = 40 # number of harmonics
 Δt = 0.01 # time step (s)
 t₀ = 0.0 # initial time (s)
 τ = 2.0 # total simulation time (s)
@@ -40,7 +40,7 @@ p = Problem(ℓ, d, ℐ, t)
 nothing # hide
 ```
 
-The free surface corresponds to a Gaussian `surface_bump!` of characteristic height ``h`` and length ``\lambda``.
+The free surface corresponds to a Gaussian `surface_bump!` of characteristic height `h` and length `λ`.
 
 ```@example 0
 h = 0.4d # bump height (m)
@@ -69,7 +69,7 @@ and plot the results.
 η₀ = Observable(η.(x, firstindex(t))) # set free-surface observable
 title = Observable(L"t = %$(round(t[1], digits=1))\,\mathrm{s}") # set title string observable
 set_theme!(theme_latexfonts()) # set latex fonts
-fig = Figure(size = (600, 300)) # initialize a figure
+fig = Figure(size = (700, 300)) # initialize a figure
 ax = Axis(fig[1, 1], 
         xlabel = L"$x$ (m)", 
         ylabel = L"$z$ (m)",
@@ -101,10 +101,10 @@ nothing # hide
 </video>
 ```
 
-Now, we are going to add some bottom variation by applying `bottom_bump!` to a fresh problem p2. Please note that we set bottom nonlinearity parameter `M_b=30`, while we initialize the free surface with our previous settings using `surface_bump!`.
+Now, we are going to add some bottom variation by applying `bottom_bump!` to a fresh problem `p2`. Please note that we set a bottom nonlinearity parameter `M_b=40`, while we initialize the free surface with our previous settings using `surface_bump!`.
 
 ```@example 0
-p2 = Problem(ℓ, d, ℐ, t, M_b=30)
+p2 = Problem(ℓ, d, ℐ, t, M_b=40)
 surface_bump!(p2, h, λ)
 h₀, λ₀ = 0.9d, 0.5ℓ # bottom bump height, length
 bottom_bump!(p2, h₀, λ₀)
@@ -129,9 +129,9 @@ and plot the results.
 
 ```@example 0
 η₀ = Observable(η.(x, firstindex(t))) # set free-surface observable
-title = Observable(L"t = %$(round(t[1], digits=1))\,\mathrm{s}") # set title string observable
+title = Observable(L"t = %$(round(t[1], digits=1))\,\mathrm{s}") # set title text observable
 set_theme!(theme_latexfonts()) # set latex fonts
-fig = Figure(size = (600, 300)) # initialize a figure
+fig = Figure(size = (700, 300)) # initialize a figure
 ax = Axis(fig[1, 1], 
         xlabel = L"$x$ (m)", 
         ylabel = L"$z$ (m)",
@@ -163,3 +163,5 @@ nothing # hide
 <source src="../animation2.mp4" type="video/mp4">
 </video>
 ```
+
+Please see the next section for more examples.
