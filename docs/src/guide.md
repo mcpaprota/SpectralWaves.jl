@@ -11,7 +11,7 @@ julia> using SpectralWaves
 
 ## Quick start
 
-We begin our introduction with an evolution of a free surface for an initial bump of water in a domain of length `ℓ` and still water depth `d`.
+We begin our introduction with an evolution of a free surface for an initial bump of water in a domain of length `ℓ` and still water depth `d`. We aim to compare free-surface evolution for the case of constant and uneven bottom.
 
 ```@example 0
 using SpectralWaves
@@ -33,26 +33,32 @@ t = range(start = t₀, stop = τ, step = Δt) # time range
 nothing # hide
 ```
 
-We initialize wave problem `p` using a struct `Problem`.
+We initialize a constant bottom wave problem `p₀` and uneven bottom wave problem `p₁` using `Problem` struct. Please note that we set a bottom nonlinearity parameter `M_b=40` in case of an uneven bottom, while for constant bottom we leave its default (`M_b=0`) value.
 
 ```@example 0
-p = Problem(ℓ, d, ℐ, t)
+p₀ = Problem(ℓ, d, ℐ, t)
+p₁ = Problem(ℓ, d, ℐ, t, M_b=40)
 nothing # hide
 ```
 
-The free surface corresponds to a Gaussian `surface_bump!` of characteristic height `h` and length `λ`.
+The free surface corresponds to a Gaussian `surface_bump!` of characteristic height `h` and length `λ` is applied to both problems `p₀` and `p₁`, while we add some bottom variation by applying a Gaussian `bottom_bump!` of characteristic height `h₁` and length `λ₁` to problem `p₁`.
 
 ```@example 0
 h = 0.4d # bump height (m)
 λ = 0.1ℓ # bump length (m)
-surface_bump!(p, h, λ)
+surface_bump!(p₀, h, λ)
+surface_bump!(p₁, h, λ)
+h₁ = 0.9d # bottom bump height (m)
+λ₁ = 0.5ℓ # bottom bump length (m)
+bottom_bump!(p₁, h₁, λ₁)
 nothing # hide
 ```
 
-We solve the problem.
+We solve both problems.
 
 ```@example 0
-solve_problem!(p)
+solve_problem!(p₀)
+solve_problem!(p₁)
 nothing # hide
 ```
 
@@ -101,7 +107,7 @@ nothing # hide
 </video>
 ```
 
-Now, we are going to add some bottom variation by applying `bottom_bump!` to a fresh problem `p2`. Please note that we set a bottom nonlinearity parameter `M_b=40`, while we initialize the free surface with our previous settings using `surface_bump!`.
+Now, we are going to add some bottom variation by applying `bottom_bump!` to a fresh problem `p2`. , while we initialize the free surface with our previous settings using `surface_bump!`.
 
 ```@example 0
 p2 = Problem(ℓ, d, ℐ, t, M_b=40)
