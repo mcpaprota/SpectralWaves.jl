@@ -2,7 +2,7 @@
 
 ## Regular linear waves
 
-We begin with a first example of modelling linear and regular waves of length ``L`` and height ``H`` propagating in water of constant depth ``d``. We consider one wave along the length of the domain ``\ell``. 
+We are modelling linear and regular waves of length `L` and height `H` propagating in water of constant depth `d`. We consider one wave along the length of the domain `ℓ`. 
 
 ```@example 1
 using SpectralWaves
@@ -15,7 +15,7 @@ d = 1.0 # water depth (m)
 nothing # hide
 ```
 
-We need a wave period ``T``.
+We need a wave period `T`.
 
 ```@example 1
 k = 2π / L # wave number (rad/m)
@@ -37,31 +37,31 @@ t = range(start = t₀, stop = τ, step = Δt) # time range
 nothing # hide
 ```
 
-We initialize wave problem using a struct `p1::Problem`.
+We initialize wave problem using a struct `p::Problem`.
 
 ```@example 1
-p1 = Problem(ℓ, d, ℐ, t)
+p = Problem(ℓ, d, ℐ, t)
 nothing # hide
 ```
 
 Initial condition values of ``\hat{\eta}``, ``\dot{\eta}``, ``\hat{\phi}``, and ``\dot{\phi}`` are computed and inserted into vectors `η̂`, `η̇`, `ϕ̂`, `ϕ̇` using `linear_regular_wave!` in-place function.
 
 ```@example 1
-linear_regular_wave!(p1, H, ω)
+linear_regular_wave!(p, H, ω)
 nothing # hide
 ```
 
 Now, we are ready to solve a problem. We use an in-place function `solve_problem!` which stores the values of solution coefficients in vectors `η̂`, `η̇`, `ϕ̂`, `ϕ̇`, `ψ̂`, `ψ̇`. In our case only `η̂` will be further processed.
 
 ```@example 1
-solve_problem!(p1)
+solve_problem!(p)
 nothing # hide
 ```
 
-We may define a function that calculates free-surface elevation at specified location `x` and time instant `n` using `water_surface` function.
+We define a function that calculates free-surface elevation at specified location `x` and time instant `n` using `water_surface` function.
 
 ```@example 1
-η(x, n) = water_surface(p1, x, n)
+η(x, n) = water_surface(p, x, n)
 nothing # hide
 ```
 

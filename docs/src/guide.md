@@ -33,7 +33,7 @@ t = range(start = t₀, stop = τ, step = Δt) # time range
 nothing # hide
 ```
 
-We initialize a constant bottom wave problem `p₀` and uneven bottom wave problem `p₁` using `Problem` struct. Please note that we set a bottom nonlinearity parameter `M_b=40` in case of an uneven bottom, while for constant bottom we leave its default (`M_b=0`) value.
+We initialize a constant bottom wave problem `p₀` and an uneven bottom wave problem `p₁` using struct `Problem`. Please note that we set a bottom nonlinearity parameter `M_b=40` in case of an uneven bottom, while for constant bottom we leave its default (`M_b=0`) value.
 
 ```@example 0
 p₀ = Problem(ℓ, d, ℐ, t)
@@ -41,7 +41,7 @@ p₁ = Problem(ℓ, d, ℐ, t, M_b=40)
 nothing # hide
 ```
 
-The free surface corresponds to a Gaussian `surface_bump!` of characteristic height `h` and length `λ` is applied to both problems `p₀` and `p₁`, while we add some bottom variation by applying a Gaussian `bottom_bump!` of characteristic height `h₁` and length `λ₁` to problem `p₁`.
+The free surface corresponds to a Gaussian `surface_bump!` of characteristic height `h` and length `λ` and is applied to both problems `p₀` and `p₁`, while we add some bottom variation by applying a Gaussian `bottom_bump!` of characteristic height `h₁` and length `λ₁` to problem `p₁`.
 
 ```@example 0
 h = 0.4d # bump height (m)
@@ -62,103 +62,61 @@ solve_problem!(p₁)
 nothing # hide
 ```
 
-Finally, we may calculate free surface elevation using `water_surface` function for a range of spatial points `x`
+Finally, we may calculate free surface elevation and bottom surface using `water_surface` and `bottom_surface` functions for a range of spatial points `x`
 
 ```@example 0
 x = range(- ℓ / 2, ℓ / 2, length = 1001) # spatial range
-η(x, n) = water_surface(p, x, n)
+η₀(x, n) = water_surface(p₀, x, n)
+η₁(x, n) = water_surface(p₁, x, n)
+β(x) = bottom_surface(p₁, x)
 nothing # hide
 ```
 and plot the results.
 
 ```@example 0
-η₀ = Observable(η.(x, firstindex(t))) # set free-surface observable
-title = Observable(L"t = %$(round(t[1], digits=1))\,\mathrm{s}") # set title string observable
+o₀ = Observable(η₀.(x, firstindex(t))) # set free-surface observable for p₀
+o₁ = Observable(η₁.(x, firstindex(t))) # set free-surface observable for p₁
+title = Observable(L"t = %$(round(t[1], digits=1))\,\mathrm{s}") # set string observable
 set_theme!(theme_latexfonts()) # set latex fonts
 fig = Figure(size = (700, 300)) # initialize a figure
-ax = Axis(fig[1, 1], 
+
+# left plot p₀
+ax0 = Axis(fig[1, 1], 
         xlabel = L"$x$ (m)", 
-        ylabel = L"$z$ (m)",
-        title = title) # define axis with labels
-band!(ax, x, η₀, -d, 
+        ylabel = L"$z$ (m)") # define axis with labels
+band!(ax0, x, o₀, -d, 
         color=:azure) # plot water bulk
-lines!(ax, x, η₀, 
+lines!(ax0, x, o₀, 
         color=:black, 
         linewidth = 1) # plot free surface line
-band!(ax, x, -1.1d, - d, 
+band!(ax0, x, -1.1d, - d, 
         color=:wheat) # plot bottom bulk
-hlines!(- d, 
+hlines!(ax0, -d, 
         color=:black, 
         linewidth = 0.7) # plot bottom line
-limits!(ax, x[1], x[end], -1.1d, d) # set limits
+limits!(ax0, x[1], x[end], -1.1d, d) # set limits
 
-# animate free surface
-record(fig, "animation1.mp4", 1:lastindex(t);
-        framerate = 30) do n
-    η₀[] = η.(x, n)
-    title[] = L"t = %$(round(t[n], digits=1))\,\mathrm{s}"
-end
-nothing # hide
-```
-
-```@raw html
-<video width="auto" controls autoplay loop>
-<source src="../animation1.mp4" type="video/mp4">
-</video>
-```
-
-Now, we are going to add some bottom variation by applying `bottom_bump!` to a fresh problem `p2`. , while we initialize the free surface with our previous settings using `surface_bump!`.
-
-```@example 0
-p2 = Problem(ℓ, d, ℐ, t, M_b=40)
-surface_bump!(p2, h, λ)
-h₀, λ₀ = 0.9d, 0.5ℓ # bottom bump height, length
-bottom_bump!(p2, h₀, λ₀)
-```
-
-Again, we solve the problem.
-
-```@example 0
-solve_problem!(p2)
-nothing # hide
-```
-
-We calculate free surface elevation and bottom topography using `water_surface` and `bottom_surface` for a range of points
-
-```@example 0
-x = range(- ℓ / 2, ℓ / 2, length = 1001) # spatial range
-η(x, n) = water_surface(p2, x, n)
-β(x) = bottom_surface(p2, x)
-nothing # hide
-```
-and plot the results.
-
-```@example 0
-η₀ = Observable(η.(x, firstindex(t))) # set free-surface observable
-title = Observable(L"t = %$(round(t[1], digits=1))\,\mathrm{s}") # set title text observable
-set_theme!(theme_latexfonts()) # set latex fonts
-fig = Figure(size = (700, 300)) # initialize a figure
-ax = Axis(fig[1, 1], 
-        xlabel = L"$x$ (m)", 
-        ylabel = L"$z$ (m)",
-        title = title) # define axis with labels
-band!(ax, x, η₀, -d, 
+# right plot p₁
+ax1 = Axis(fig[1, 2], 
+        xlabel = L"$x$ (m)") # define axis with labels
+band!(ax1, x, o₁, -d, 
         color=:azure) # plot water bulk
-lines!(ax, x, η₀, 
+lines!(ax1, x, o₁, 
         color=:black, 
-        linewidth = 1, 
-        label=L"\eta(\tau=2\,\mathrm{s})") # plot free surface line
-band!(ax, x, β.(x) .- d, - 1.1d, 
+        linewidth = 1) # plot free surface line
+band!(ax1, x, β.(x) .- d, - 1.1d, 
         color=:wheat) # plot bottom bulk
-lines!(ax, x, β.(x) .- d, 
+lines!(ax1, x, β.(x) .- d, 
         color=:black, 
         linewidth = 1) # plot bottom line
-limits!(ax, x[1], x[end], -1.1d, d) # set limits
+limits!(ax1, x[1], x[end], -1.1d, d) # set limits
+Label(fig[0, :], text=title)
 
 # animate free surface
-record(fig, "animation2.mp4", 1:lastindex(t);
+record(fig, "animation.mp4", 1:lastindex(t);
         framerate = 30) do n
-    η₀[] = η.(x, n)
+    o₀[] = η₀.(x, n)
+    o₁[] = η₁.(x, n)
     title[] = L"t = %$(round(t[n], digits=1))\,\mathrm{s}"
 end
 nothing # hide
@@ -166,7 +124,7 @@ nothing # hide
 
 ```@raw html
 <video width="auto" controls autoplay loop>
-<source src="../animation2.mp4" type="video/mp4">
+<source src="../animation.mp4" type="video/mp4">
 </video>
 ```
 
