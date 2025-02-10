@@ -58,20 +58,22 @@ solve_problem!(p)
 nothing # hide
 ```
 
-We define a function that calculates free-surface elevation at specified location `x` and time instant `n` using `water_surface` function.
+We define a function that calculates free-surface elevation at specified location `x` and time instant `n` and velocity components `u` and `w` at specified location (`x`, `z`) and time instant `n` using `water_surface`, `horizontal_velocity`, and `vertical_velocity` functions. Please note that the last argument to `water_velocity` specifies the axis of projection of velocity vector (1 - ``x``, 3 - ``z``)
 
 ```@example 1
 η(x, n) = water_surface(p, x, n)
+u(x, z, n) = water_velocity(x, z, n, 1)
+w(x, z, n) = water_velocity(x, z, n, 3)
 nothing # hide
 ```
 
-Finally we are ready to plot results. Here, we plot the whole time series of free-surface elevation corresponding to a middle of a domain.
+Finally we are ready to plot results. Here, we plot the whole time series of free-surface elevation corresponding to the middle of a domain.
 
 ```@example 1
 set_theme!(merge(theme_latexfonts(), Theme(fontsize=9))) # set latex fonts of size 9
 fig = Figure(size = (400, 200)) 
 ax = Axis(fig[1, 1], xlabel = L"t/T", ylabel = L"\eta/H")
 lines!(ax, t / T, η.(ℓ/2, 1:length(t)) / H)
-limits!(ax, 0, 1, -1, 1) 
+limits!(ax, 0, 1, -1, 1)
 fig
 ```
