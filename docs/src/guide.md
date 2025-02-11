@@ -18,7 +18,7 @@ using SpectralWaves
 using CairoMakie # plotting package
 
 d = 1.0 # water depth (m)
-ℓ = 10 # fluid domain length (m)
+ℓ = 10.0 # fluid domain length (m)
 nothing # hide
 ```
 
@@ -44,8 +44,8 @@ nothing # hide
 The free surface corresponds to a Gaussian `surface_bump!` of characteristic height `h` and length `λ` and is applied to both problems `p₀` and `p₁`, while we add some bottom variation by applying a Gaussian `bottom_bump!` of characteristic height `h₁` and length `λ₁` to problem `p₁`.
 
 ```@example 0
-h = 0.4d # bump height (m)
-λ = 0.1ℓ # bump length (m)
+h = 0.4d # surface bump height (m)
+λ = 0.1ℓ # surface bump length (m)
 surface_bump!(p₀, h, λ)
 surface_bump!(p₁, h, λ)
 h₁ = 0.9d # bottom bump height (m)
@@ -62,18 +62,18 @@ solve_problem!(p₁)
 nothing # hide
 ```
 
-Finally, we may calculate free surface elevation and bottom surface using `water_surface` and `bottom_surface` functions for a range of spatial points `x`
+Finally, we may calculate free surface elevation and bottom surface position using `water_surface` and `bottom_surface` functions
 
 ```@example 0
-x = range(- ℓ / 2, ℓ / 2, length = 1001) # spatial range
 η₀(x, n) = water_surface(p₀, x, n)
 η₁(x, n) = water_surface(p₁, x, n)
 β(x) = bottom_surface(p₁, x)
 nothing # hide
 ```
-and plot the results.
+and plot the results for a range of spatial points `x`.
 
 ```@example 0
+x = range(start = - ℓ / 2, stop = ℓ / 2, length = 1001) # spatial range
 o₀ = Observable(η₀.(x, firstindex(t))) # set free-surface observable for p₀
 o₁ = Observable(η₁.(x, firstindex(t))) # set free-surface observable for p₁
 title = Observable(L"t = %$(round(t[1], digits=1))\,\mathrm{s}") # set string observable
