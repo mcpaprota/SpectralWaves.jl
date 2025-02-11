@@ -37,7 +37,7 @@ We initialize a constant bottom wave problem `p₀` and an uneven bottom wave pr
 
 ```@example 0
 p₀ = Problem(ℓ, d, ℐ, t)
-p₁ = Problem(ℓ, d, ℐ, t, M_b=40)
+p₁ = Problem(ℓ, d, ℐ, t; M_b=40)
 nothing # hide
 ```
 
@@ -99,7 +99,7 @@ limits!(ax0, x[1], x[end], -1.1d, d) # set limits
 # right plot p₁
 ax1 = Axis(fig[1, 2], 
         xlabel = L"$x$ (m)") # define axis with labels
-band!(ax1, x, o₁, -d, 
+band!(ax1, x, o₁, β.(x) .-d, 
         color=:azure) # plot water bulk
 lines!(ax1, x, o₁, 
         color=:black, 

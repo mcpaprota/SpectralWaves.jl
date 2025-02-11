@@ -58,12 +58,13 @@ solve_problem!(p)
 nothing # hide
 ```
 
-We define a function that calculates free-surface elevation at specified location `x` and time instant `n` and velocity components `u` and `w` at specified location (`x`, `z`) and time instant `n` using `water_surface`, `water_velocity` functions. Please note that the last argument to `water_velocity` specifies the axis of projection of velocity vector (1 - ``x``, 3 - ``z``)
+We define a function that calculates free-surface elevation at specified location `x` and time instant `n` and velocity components `u` and `w` at specified location (`x`, `z`) and time instant `n` using `water_surface`, `water_velocity` functions. Please note that the last argument to `water_velocity` specifies the axis of projection of the velocity vector using symbolic variables `:x` or  `:z`.
 
 ```@example 1
 η(x, n) = water_surface(p, x, n)
-u(x, z, n) = water_velocity(x, z, n, 1)
-w(x, z, n) = water_velocity(x, z, n, 3)
+u(x, z, n) = (z < η(x, n)) * water_velocity(p, x, z, n, :x)
+w(x, z, n) = (z < η(x, n)) * water_velocity(p, x, z, n, :z)
+v(x, z, n) = sqrt.(u(x, z, n)^2 + w(x, z, n)^2)
 nothing # hide
 ```
 
@@ -71,19 +72,142 @@ We need a grid to present results.
 
 ```@example 1
 x = range(start = 0, stop = ℓ, length = 21)
-z = zeros(11,21)
-for i in eachindex(i)
-    z[:, i] = range(start = -d, stop = η(x[i], 1), 11)
-end
+z = range(start = -d, stop = H, length = 11)
+nothing # hide
 ```
 
 Finally we are ready to plot results.
 
 ```@example 1
+n = 101
 set_theme!(theme_latexfonts()) # set latex fonts
 fig = Figure(size = (700, 300)) 
-ax = Axis(fig[1, 1], xlabel = L"t/T", ylabel = L"\eta/H")
-lines!(ax, t / T, η.(ℓ/2, 1:length(t)) / H)
-limits!(ax, 0, 1, -1, 1)
+ax = Axis(fig[1, 1], xlabel = L"$x$ (m)", ylabel = L"$\eta$ (m)")
+band!(ax, x, η.(x, n), -d, 
+        color=:azure) # plot water bulk
+lines!(ax, x, η.(x, n), 
+        color=:black, 
+        linewidth = 1) # plot free surface
+band!(ax, x, -1.1d, - d, 
+        color=:wheat) # plot bottom bulk
+hlines!(ax, -d, 
+        color=:black, 
+        linewidth = 0.7) # plot bottom line
+arrows!(ax, x, z, u.(x, z', n), w.(x, z', n); 
+    lengthscale = 0.3,
+    arrowsize = 10 * vec(v.(x, z', n)/maximum(v.(x, z', n)))) # plot velocity vectors
+limits!(ax, 0, L, -1.1d, H)
 fig
+```
+
+## Linear shoaling 
+
+We are modelling linear and regular waves of length `L` and height `H` climbing up a slope. We apply a linear wavemaker at both sides of the domain, while we consider only a half of the domain of length `ℓ`.
+
+```@example 2
+using SpectralWaves
+using CairoMakie # plotting package
+
+L = 5.0 # wavelength (m)
+H = 0.1 # wave height (m)
+d = 1.0 # water depth (m)
+ℓ = 120.0 # fluid domain length (m)
+nothing # hide
+```
+
+Again, we need a wave period `T`.
+
+```@example 2
+k = 2π / L # wave number (rad/m)
+ω = sqrt(g * k * tanh(k * d)) # angular wave frequency (rad/s)
+T = 2π / ω # wave period (s)
+nothing # hide
+```
+
+We define a number of numerical model parameters. In order to secure a smooth start of the wavemaker paddle, we define a number of ramped wave periods `nT₀` in addition to a total number of simulated wave periods `nT`.
+
+```@example 2
+ℐ = 120 # number of harmonics
+nT = 20 # number of simulated wave periods
+nT₀ = 3 # number of ramped wave periods
+nΔt = 50 # number of time steps per wave period
+Δt = T / nΔt # time step (s)
+t₀ = 0.0 # initial time (s)
+τ = nT * T # total simulation time (s)
+t = range(start = t₀, stop = τ, step = Δt) # time range
+nothing # hide
+```
+
+We initialize wave problem `p` with `M_b=40`.
+
+```@example 2
+p = Problem(ℓ, d, ℐ, t; M_b=40)
+nothing # hide
+```
+
+We use `linear_wavemaker!` function to define wavemaker paddle motion.
+
+```@example 2
+linear_wavemaker!(p, H, T, L, nT₀)
+nothing # hide
+```
+
+The slope of height `h` is introduced using `bottom_slope!` function.
+
+```@example 2
+h = 0.9d
+bottom_slope!(p, h)
+nothing # hide
+```
+
+And we solve the problem.
+
+```@example 2
+solve_problem!(p)
+nothing # hide
+```
+
+We calculate free surface elevation and bottom surface position using `water_surface` and `bottom_surface` functions
+
+```@example 2
+η(x, n) = water_surface(p, x, n)
+β(x) = bottom_surface(p, x)
+nothing # hide
+```
+
+and we are ready to animate results and see how the waves shoal.
+
+
+```@example 2
+x = range(start = 0, stop = ℓ / 3, length = 501) # spatial range
+η₀ = Observable(η.(x, firstindex(t))) # set free-surface observable for p
+set_theme!(theme_latexfonts()) # set latex fonts
+fig = Figure(size = (700, 300)) # initialize a figure
+ax = Axis(fig[1, 1], 
+        xlabel = L"$x$ (m)", 
+        ylabel = L"$z$ (m)") # define axis with labels and title
+band!(ax, x, η₀, β.(x) .-d, 
+        color=:azure) # plot water bulk
+lines!(ax, x, η₀, 
+        color=:black, 
+        linewidth = 1) # plot free surface line
+band!(ax, x, β.(x) .- d, - 1.1d, 
+        color=:wheat) # plot bottom bulk
+lines!(ax, x, β.(x) .- d, 
+        color=:black, 
+        linewidth = 1) # plot bottom line
+limits!(ax, x[1], x[end], -1.1d, H) # set limits
+
+# animate free surface
+record(fig, "shoaling.mp4", 1:lastindex(t);
+        framerate = 50) do n
+    η₀[] = η.(x, n)
+end
+nothing # hide
+```
+
+```@raw html
+<video width="auto" controls autoplay loop>
+<source src="../shoaling.mp4" type="video/mp4">
+</video>
 ```
