@@ -109,7 +109,7 @@ using SpectralWaves
 using CairoMakie # plotting package
 
 L = 5.0 # wavelength (m)
-H = 0.1 # wave height (m)
+H = 0.05 # wave height (m)
 d = 1.0 # water depth (m)
 ℓ = 120.0 # fluid domain length (m)
 nothing # hide
@@ -128,9 +128,9 @@ We define a number of numerical model parameters. In order to secure a smooth st
 
 ```@example 2
 ℐ = 120 # number of harmonics
-nT = 20 # number of simulated wave periods
+nT = 25 # number of simulated wave periods
 nT₀ = 3 # number of ramped wave periods
-nΔt = 50 # number of time steps per wave period
+nΔt = 100 # number of time steps per wave period
 Δt = T / nΔt # time step (s)
 t₀ = 0.0 # initial time (s)
 τ = nT * T # total simulation time (s)
@@ -155,7 +155,7 @@ nothing # hide
 The slope of height `h` is introduced using `bottom_slope!` function.
 
 ```@example 2
-h = 0.9d
+h = 0.95d
 bottom_slope!(p, h)
 nothing # hide
 ```
@@ -196,10 +196,10 @@ band!(ax, x, β.(x) .- d, - 1.1d,
 lines!(ax, x, β.(x) .- d, 
         color=:black, 
         linewidth = 1) # plot bottom line
-limits!(ax, x[1], x[end], -1.1d, H) # set limits
+limits!(ax, x[1], x[end], -1.1d, 2H) # set limits
 
 # animate free surface
-record(fig, "shoaling.mp4", 1:lastindex(t);
+record(fig, "shoaling.mp4", lastindex(t)-nΔt+1:lastindex(t);
         framerate = 50) do n
     η₀[] = η.(x, n)
 end
