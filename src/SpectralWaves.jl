@@ -19,6 +19,7 @@ export init_problem, solve_problem!
 export linear_regular_wave!, linear_wavemaker!
 export water_surface, bottom_surface, water_velocity
 export surface_bump!, bottom_bump!, bottom_step!, bottom_slope!, bottom_vector!
+export moving_bottom_bump!
 export plot_fluid_domain
 export water_bulk, sand_bulk
 end

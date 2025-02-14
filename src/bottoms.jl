@@ -48,3 +48,12 @@ function bottom_vector!(p::Problem, x::AbstractRange{<:Real}, β::Vector{<:Real}
     end
     return nothing
 end
+
+function moving_bottom_bump!(p::Problem, h, λ, u, x₀ = 0)
+    β̂, β̇, κ, ℓ, t, O, N = p.β̂, p.β̇, p.κ, p.ℓ, p.t, p.O, p.N
+    for n in O:N+O-1
+        β̂[:, n] = @. h * λ * √(2π) / 4ℓ * exp(- λ^2 * κ^2 / 32) * exp(-im * κ * x₀) * exp(-im * κ * u * t[n-O+1])
+        β̇[:, n] = @. -im * κ * u * β̂[:, n]
+    end
+    return nothing
+end

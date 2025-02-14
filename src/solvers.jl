@@ -139,7 +139,7 @@ function solve_problem!(p::Problem)
     ℓ, d = p.ℓ, p.d
     ℐ, Δt, N, O, M_s, M_b, F = p.ℐ, p.Δt, p.N, p.O, p.M_s, p.M_b, p.F
     ϕ̂, ϕ̇, ψ̂, ψ̇ = p.ϕ̂, p.ϕ̇, p.ψ̂, p.ψ̇
-    η̂, η̇ = p.η̂, p.η̇
+    η̂, η̇, p̂ = p.η̂, p.η̇, p.p̂
     β̂, β̇ = p.β̂, p.β̇
     ξ, ζ = p.ξ, p.ζ
     κ, 𝒯, 𝒮 = p.κ, p.𝒯, p.𝒮
@@ -175,9 +175,9 @@ function solve_problem!(p::Problem)
         while j < J
             # apply dynamic free-surface boundary condition
             if M_s == 0
-                @views ϕ̇[:, n] = -g * η̂[:, n] + 2ζ[n] * κ″ / ℓ
+                @views ϕ̇[:, n] = -g * (η̂[:, n] + p̂[:, n]) + 2ζ[n] * κ″ / ℓ
             else
-                @views ϕ̇[:, n] = -g * η̂[:, n] + 2ζ[n] * κ″ / ℓ - δϕ̇(n)
+                @views ϕ̇[:, n] = -g * (η̂[:, n] + p̂[:, n]) + 2ζ[n] * κ″ / ℓ - δϕ̇(n)
             end
             ϕ̇[ℐ+1, n] = -g * η̂[ℐ+1, n] - ζ[n] * (d^2 / ℓ - ℓ / 12)
             # apply Adams-Bashforth predictor

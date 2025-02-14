@@ -29,10 +29,7 @@ t = range(start = t₀, stop = τ, step = Δt) # time range
 p = Problem(ℓ, d, ℐ, t; static_bottom = false, M_s = M_s, M_b = M_b)
 
 # Bottom topography
-for n in p.O:p.N+p.O
-    p.β̂[:, n] = @. h * λ * sqrt(2π) / 4ℓ * exp(-λ^2 * p.κ^2 / 32) * exp(-im * (n - p.O) * Δt * Fr * sqrt(g * d) * p.κ)
-    p.β̇[:, n] = @. -im * Fr * sqrt(g * d) * p.κ * p.β̂[:, n]
-end
+moving_bottom_bump!(p, h, λ, Fr * sqrt(g * d))
 
 # Solve wave problem
 solve_problem!(p)
