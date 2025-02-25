@@ -10,6 +10,12 @@ function bottom_surface(p::Problem, x::Real, n=1)
     return β
 end
 
+function surface_pressure(p::Problem, x::Real, n=1)
+    p̂, κ = p.p̂, p.κ
+    p = inverse_fourier_transform(p̂[:, n], κ, x)
+    return p
+end
+
 function water_velocity(p::Problem, x::Real, z::Real, n::Integer, c::Symbol)
     ϕ̂, ψ̂, κ, ℐ, O, d = p.ϕ̂, p.ψ̂, p.κ, p.ℐ, p.O, p.d
     if c == :x

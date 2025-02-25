@@ -53,3 +53,11 @@ function surface_bump!(p::Problem, h, λ, x₀ = 0)
     end
     return nothing
 end
+
+function moving_pressure_bump!(p::Problem, h, λ, u, x₀ = 0)
+    p̂, κ, ℓ, t, O, N = p.p̂, p.κ, p.ℓ, p.t, p.O, p.N
+    for n in O:N+O-1
+        p̂[:, n] = @. h * λ * √(2π) / 4ℓ * exp(- λ^2 * κ^2 / 32) * exp(-im * κ * x₀) * exp(-im * κ * u * t[n-O+1])
+    end
+    return nothing
+end
