@@ -25,8 +25,28 @@ function convolve(a::Vector{Ta}, b::Vector{Tb}) where {Ta<:Number, Tb<:Number}
     return c
 end
 
+"""
+    convolve_dsp(a::Vector{Ta}, b::Vector{Tb}) where {Ta<:Number, Tb<:Number}
+
+Compute direct convolution of vectors `a` and `b` using DSP package.
+
+# Examples
+```julia-repl
+julia> a = [1, 2]; b = [1, 1]; convolve(a, b)
+3-element Vector{Int64}:
+ 1
+ 3
+ 2
+```
+"""
+function convolve_dsp(a::Vector{Ta}, b::Vector{Tb}) where {Ta<:Number, Tb<:Number}
+    c = DSP.conv(a, b)
+    return c
+end
+
 # infix version of convolve
-Base.:*(a::Vector{<:Number}, b::Vector{<:Number}) = convolve(a, b)
+# Base.:*(a::Vector{<:Number}, b::Vector{<:Number}) = convolve(a, b)
+Base.:*(a::Vector{<:Number}, b::Vector{<:Number}) = convolve_dsp(a, b)
 
 """
     convolution_power(a::Vector{<:Number}, n::Integer)

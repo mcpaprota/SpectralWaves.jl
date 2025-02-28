@@ -1,6 +1,6 @@
 module SpectralWaves
 
-using LinearAlgebra, ProgressMeter
+using LinearAlgebra, ProgressMeter, DSP
 
 include("algebra.jl")
 include("constants.jl")
