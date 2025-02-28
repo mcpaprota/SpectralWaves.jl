@@ -130,7 +130,7 @@ We define a number of numerical model parameters. In order to secure a smooth st
 ℐ = 120 # number of harmonics
 nT = 25 # number of simulated wave periods
 nT₀ = 3 # number of ramped wave periods
-nΔt = 100 # number of time steps per wave period
+nΔt = 50 # number of time steps per wave period
 Δt = T / nΔt # time step (s)
 t₀ = 0.0 # initial time (s)
 τ = nT * T # total simulation time (s)
@@ -211,3 +211,124 @@ nothing # hide
 <source src="../shoaling.mp4" type="video/mp4">
 </video>
 ```
+
+## Wave transformation at a step
+
+We are modelling linear and regular waves of length `L` and height `H` undergoing a transformation at an underwater step. We apply a linear wavemaker at both sides of the domain, while we consider only a half of the domain of length `ℓ`.
+
+```@example 3
+using SpectralWaves
+using CairoMakie # plotting package
+
+L = 5.0 # wavelength (m)
+H = 0.05 # wave height (m)
+d = 1.0 # water depth (m)
+ℓ = 60.0 # fluid domain length (m)
+nothing # hide
+```
+
+We need a wave period `T`.
+
+```@example 3
+k = 2π / L # wave number (rad/m)
+ω = sqrt(g * k * tanh(k * d)) # angular wave frequency (rad/s)
+T = 2π / ω # wave period (s)
+nothing # hide
+```
+
+We define a number of numerical model parameters (cf. linear shoaling example).
+
+```@example 3
+ℐ = 120 # number of harmonics
+nT = 12 # number of simulated wave periods
+nT₀ = 3 # number of ramped wave periods
+nΔt = 50 # number of time steps per wave period
+Δt = T / nΔt # time step (s)
+t₀ = 0.0 # initial time (s)
+τ = nT * T # total simulation time (s)
+t = range(start = t₀, stop = τ, step = Δt) # time range
+nothing # hide
+```
+
+We initialize wave problem `p` with `M_b=40`.
+
+```@example 3
+p = Problem(ℓ, d, ℐ, t; M_b=40)
+nothing # hide
+```
+
+We use `linear_wavemaker!` function to define wavemaker paddle motion.
+
+```@example 3
+linear_wavemaker!(p, H, T, L, nT₀)
+nothing # hide
+```
+
+The step of height `h` is introduced using `bottom_step!` function.
+
+```@example 3
+h = 0.8d
+bottom_step!(p, h)
+nothing # hide
+```
+
+We solve the problem.
+
+```@example 3
+solve_problem!(p)
+nothing # hide
+```
+
+We calculate free surface elevation and bottom surface position using `water_surface` and `bottom_surface` functions
+
+```@example 3
+η(x, n) = water_surface(p, x, n)
+β(x) = bottom_surface(p, x)
+nothing # hide
+```
+
+and we animate the results to see how the waves undergo transformation at a step.
+
+
+```@example 3
+x = range(start = ℓ / 8, stop = 3ℓ / 8, length = 501) # spatial range
+η₀ = Observable(η.(x, firstindex(t))) # set free-surface observable for p
+set_theme!(theme_latexfonts()) # set latex fonts
+fig = Figure(size = (700, 300)) # initialize a figure
+ax = Axis(fig[1, 1], 
+        xlabel = L"$x$ (m)", 
+        ylabel = L"$z$ (m)") # define axis with labels and title
+band!(ax, x, η₀, β.(x) .-d, 
+        color=:azure) # plot water bulk
+lines!(ax, x, η₀, 
+        color=:black, 
+        linewidth = 1) # plot free surface line
+band!(ax, x, β.(x) .- d, - 1.1d, 
+        color=:wheat) # plot bottom bulk
+lines!(ax, x, β.(x) .- d, 
+        color=:black, 
+        linewidth = 1) # plot bottom line
+limits!(ax, x[1], x[end], -1.1d, 2H) # set limits
+
+# animate free surface
+record(fig, "step_transformation.mp4", lastindex(t)-nΔt+1:lastindex(t);
+        framerate = 50) do n
+    η₀[] = η.(x, n)
+end
+nothing # hide
+```
+
+```@raw html
+<video width="auto" controls autoplay loop>
+<source src="../step_transformation.mp4" type="video/mp4">
+</video>
+```
+## More examples
+
+Wave scenarios reported in the quick start subsection of the guide and here in the examples section are available as stand-alone scripts in examples folder. The folder contains a greater wave scenario selection, which additionally includes:
+- nonlinear wave shoaling,
+- nonlinear wave transformation at a step,
+- linear tsunami waves induced by a moving bottom undergoing transformation at the step,
+- nonlinear tsunami waves induced by a moving bottom undergoing transformation at the step.
+
+We are going to add more examples in subsequent updates of the package.

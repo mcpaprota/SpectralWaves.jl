@@ -5,8 +5,7 @@
 ## Instalation
 
 ```julia
-pkg> add SpectralWaves
-julia> using SpectralWaves
+pkg> add https://github.com/mcpaprota/SpectralWaves.jl
 ```
 
 ## Quick start

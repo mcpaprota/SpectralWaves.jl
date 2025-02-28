@@ -16,7 +16,7 @@ end
 Calculate `β̂` coefficients of a wave problem `p` for a bottom step of height `h`.
 """
 function bottom_step!(p::Problem, h)
-    β̂, κ, ℓ = p.β̂, p.κ, p.ℓ
+    β̂, κ, ℓ, ℐ = p.β̂, p.κ, p.ℓ, p.ℐ
     β̂[:] = @. -h / 2 * sinc(κ * ℓ / 4π)
     β̂[ℐ+1] = h / 2
     return nothing
