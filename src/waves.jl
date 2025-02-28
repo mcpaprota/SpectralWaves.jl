@@ -46,6 +46,12 @@ function linear_wavemaker!(p::Problem, H, T, L, nT₀)
     return nothing
 end
 
+"""
+    surface_bump!(p::Problem, h, λ, x₀ = 0)
+
+Calculate `η̂` coefficients of a problem `p` for a surface bump of height `h` and characteristic length `λ` at position `x₀`.
+
+"""
 function surface_bump!(p::Problem, h, λ, x₀ = 0)
     η̂, κ, ℓ, O = p.η̂, p.κ, p.ℓ, p.O
     for n = 1:O
@@ -54,6 +60,12 @@ function surface_bump!(p::Problem, h, λ, x₀ = 0)
     return nothing
 end
 
+"""
+    moving_pressure_bump!(p::Problem, h, λ, u, x₀ = 0)
+
+Calculate `p̂` coefficients of a problem `p` for a moving pressure bump of height `h`, characteristic length `λ`, and velocity `u` at initial position `x₀`.
+
+"""
 function moving_pressure_bump!(p::Problem, h, λ, u, x₀ = 0)
     p̂, κ, ℓ, t, O, N = p.p̂, p.κ, p.ℓ, p.t, p.O, p.N
     for n in O:N+O-1

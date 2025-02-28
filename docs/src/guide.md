@@ -6,6 +6,7 @@
 
 ```julia
 pkg> add https://github.com/mcpaprota/SpectralWaves.jl
+julia> using SpectralWaves
 ```
 
 ## Quick start
@@ -32,7 +33,7 @@ t = range(start = t₀, stop = τ, step = Δt) # time range
 nothing # hide
 ```
 
-We initialize a constant bottom wave problem `p₀` and an uneven bottom wave problem `p₁` using struct `Problem`. Please note that we set a bottom nonlinearity parameter `M_b=40` in case of an uneven bottom, while for constant bottom we leave its default (`M_b=0`) value.
+We initialize a constant bottom wave problem `p₀` and an uneven bottom wave problem `p₁` using struct [`Problem`](@ref). Please note that we set a bottom nonlinearity parameter `M_b=40` in case of an uneven bottom, while for constant bottom we leave its default (`M_b=0`) value.
 
 ```@example 0
 p₀ = Problem(ℓ, d, ℐ, t)
@@ -40,7 +41,7 @@ p₁ = Problem(ℓ, d, ℐ, t; M_b=40)
 nothing # hide
 ```
 
-The free surface corresponds to a Gaussian `surface_bump!` of characteristic height `h` and length `λ` and is applied to both problems `p₀` and `p₁`, while we add some bottom variation by applying a Gaussian `bottom_bump!` of characteristic height `h₁` and length `λ₁` to problem `p₁`.
+The free surface corresponds to a Gaussian [`surface_bump!`](@ref) of characteristic height `h` and length `λ` and is applied to both problems `p₀` and `p₁`, while we add some bottom variation by applying a Gaussian [`bottom_bump!`](@ref) of characteristic height `h₁` and length `λ₁` to problem `p₁`.
 
 ```@example 0
 h = 0.4d # surface bump height (m)
@@ -61,7 +62,7 @@ solve_problem!(p₁)
 nothing # hide
 ```
 
-Finally, we may calculate free surface elevation and bottom surface position using `water_surface` and `bottom_surface` functions
+Finally, we may calculate free surface elevation and bottom surface position using [`water_surface`](@ref) and [`bottom_surface`](@ref) functions
 
 ```@example 0
 η₀(x, n) = water_surface(p₀, x, n)

@@ -37,28 +37,28 @@ t = range(start = t₀, stop = τ, step = Δt) # time range
 nothing # hide
 ```
 
-We initialize wave problem using a struct `p::Problem`.
+We initialize wave problem using a struct [`Problem`](@ref).
 
 ```@example 1
 p = Problem(ℓ, d, ℐ, t)
 nothing # hide
 ```
 
-Initial condition values of ``\hat{\eta}``, ``\dot{\eta}``, ``\hat{\phi}``, and ``\dot{\phi}`` are computed and inserted into vectors `η̂`, `η̇`, `ϕ̂`, `ϕ̇` using `linear_regular_wave!` in-place function.
+Initial condition values of ``\hat{\eta}``, ``\dot{\eta}``, ``\hat{\phi}``, and ``\dot{\phi}`` are computed and inserted into vectors `η̂`, `η̇`, `ϕ̂`, `ϕ̇` using [`linear_regular_wave!`](@ref) in-place function.
 
 ```@example 1
 linear_regular_wave!(p, H, ω)
 nothing # hide
 ```
 
-Now, we are ready to solve a problem. We use an in-place function `solve_problem!` which stores the values of solution coefficients in vectors `η̂`, `η̇`, `ϕ̂`, `ϕ̇`, `ψ̂`, `ψ̇`. In our case only `η̂` will be further processed.
+Now, we are ready to solve a problem. We use an in-place function [`solve_problem!`](@ref) which stores the values of solution coefficients in vectors `η̂`, `η̇`, `ϕ̂`, `ϕ̇`, `ψ̂`, `ψ̇`. In our case only `η̂` will be further processed.
 
 ```@example 1
 solve_problem!(p)
 nothing # hide
 ```
 
-We define a function that calculates free-surface elevation at specified location `x` and time instant `n` and velocity components `u` and `w` at specified location (`x`, `z`) and time instant `n` using `water_surface`, `water_velocity` functions. Please note that the last argument to `water_velocity` specifies the axis of projection of the velocity vector using symbolic variables `:x` or  `:z`.
+We define a function that calculates free-surface elevation at specified location `x` and time instant `n` and velocity components `u` and `w` at specified location (`x`, `z`) and time instant `n` using [`water_surface`](@ref), [`water_velocity`](@ref) functions. Please note that the last argument to [`water_velocity`](@ref) specifies the axis of projection of the velocity vector using symbolic variables `:x` or  `:z`.
 
 ```@example 1
 η(x, n) = water_surface(p, x, n)
@@ -145,14 +145,14 @@ p = Problem(ℓ, d, ℐ, t; M_b=40)
 nothing # hide
 ```
 
-We use `linear_wavemaker!` function to define wavemaker paddle motion.
+We use [`linear_wavemaker!`](@ref) function to define wavemaker paddle motion.
 
 ```@example 2
 linear_wavemaker!(p, H, T, L, nT₀)
 nothing # hide
 ```
 
-The slope of height `h` is introduced using `bottom_slope!` function.
+The slope of height `h` is introduced using [`bottom_slope!`](@ref) function.
 
 ```@example 2
 h = 0.95d
@@ -167,7 +167,7 @@ solve_problem!(p)
 nothing # hide
 ```
 
-We calculate free surface elevation and bottom surface position using `water_surface` and `bottom_surface` functions
+We calculate free surface elevation and bottom surface position using [`water_surface`](@ref) and [`bottom_surface`](@ref) functions
 
 ```@example 2
 η(x, n) = water_surface(p, x, n)
@@ -257,14 +257,14 @@ p = Problem(ℓ, d, ℐ, t; M_b=40)
 nothing # hide
 ```
 
-We use `linear_wavemaker!` function to define wavemaker paddle motion.
+We use [`linear_wavemaker!`](@ref) function to define wavemaker paddle motion.
 
 ```@example 3
 linear_wavemaker!(p, H, T, L, nT₀)
 nothing # hide
 ```
 
-The step of height `h` is introduced using `bottom_step!` function.
+The step of height `h` is introduced using [`bottom_step!`](@ref) function.
 
 ```@example 3
 h = 0.8d
@@ -279,7 +279,7 @@ solve_problem!(p)
 nothing # hide
 ```
 
-We calculate free surface elevation and bottom surface position using `water_surface` and `bottom_surface` functions
+We calculate free surface elevation and bottom surface position using [`water_surface`](@ref) and [`bottom_surface`](@ref) functions
 
 ```@example 3
 η(x, n) = water_surface(p, x, n)
@@ -325,7 +325,7 @@ nothing # hide
 ```
 ## More examples
 
-Wave scenarios reported in the quick start subsection of the guide and here in the examples section are available as stand-alone scripts in examples folder. The folder contains a greater wave scenario selection, which additionally includes:
+Wave scenarios reported in the [Quick start](@ref) subsection of the [Package Guide](@ref) and here in the [Examples](@ref) section are available as stand-alone scripts in ['examples'](https://github.com/mcpaprota/SpectralWaves.jl/tree/main/examples) folder. The folder contains a greater wave scenario selection, which additionally includes:
 - nonlinear wave shoaling,
 - nonlinear wave transformation at a step,
 - linear tsunami waves induced by a moving bottom undergoing transformation at the step,
