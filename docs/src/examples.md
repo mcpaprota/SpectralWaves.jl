@@ -323,12 +323,3 @@ nothing # hide
 <source src="../step_transformation.mp4" type="video/mp4">
 </video>
 ```
-## More examples
-
-Wave scenarios reported in the [Quick start](@ref) subsection of the [Package Guide](@ref) and here in the [Examples](@ref) section are available as stand-alone scripts in ['examples'](https://github.com/mcpaprota/SpectralWaves.jl/tree/main/examples) folder. The folder contains a greater wave scenario selection, which additionally includes:
-- nonlinear wave shoaling,
-- nonlinear wave transformation at a step,
-- linear tsunami waves induced by a moving bottom undergoing transformation at the step,
-- nonlinear tsunami waves induced by a moving bottom undergoing transformation at the step.
-
-We are going to add more examples in subsequent updates of the package.
