@@ -5,7 +5,7 @@ include("../../src/plotting.jl")
 
 # Figure size parameters:
 aspect = 2 # aspect ratio (width/height)
-width = 600 # figure width (px)
+width = 700 # figure width (px)
 height = width / aspect # figure height (px)
 
 # Input data:
@@ -26,8 +26,8 @@ aspect2 = 1.02ℓ / 1.4d / aspect
 Δ = 3 # label offset
 nx = 48 # η label position
 nx2 = 68 # β label position
-band!(ax, x, η.(x), β.(x), color=water_bulk) # water bulk
-band!(ax, x, β.(x), -1.1d, color=sand_bulk) # bottom bulk
+band!(ax, x, η.(x), β.(x), color=:azure) # water bulk
+band!(ax, x, β.(x), -1.1d, color=:wheat) # bottom bulk
 lines!(ax, x, η.(x), color=:black, linewidth = 1) # free surface
 lines!(ax, x, β.(x), color=:black, linewidth = 1) # bottom surface
 lines!(ax, [0, 0, 2π, 2π, 0], [-d, 0, 0, -d, -d],
@@ -46,7 +46,7 @@ text!(ax, [0, 0, 2π, 2π], [-d, 0, 0, -d];
     offset=[(Δ, Δ), (Δ, -Δ), (-Δ, -Δ), (-Δ, Δ)],
     ) # fluid domain rectangle corners labels
 text!(ax, [x[nx], x[nx2]], [η(x[nx]), β(x[nx2])];
-    text=[L"\eta(x)", L"\beta(x)"],
+    text=[L"\eta(x,t)", L"\beta(x,t)"],
     align=[(:left, :bottom), (:left, :bottom)],
     offset=[(Δ, Δ), (Δ, Δ)]) # water and bottom surface label
 text!(ax, [0.8d, 0], [0, 0.8d / aspect2],

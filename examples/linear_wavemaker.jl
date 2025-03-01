@@ -3,44 +3,54 @@
 using SpectralWaves
 using GLMakie
 
-# Define fluid domain and wave parameters
+# Define fluid domain
 d = 1.0 # water depth (m)
+ℓ = 100.0 # fluid domain length (m)
+
+# Define wave parameters
 H = 0.2 # wave height (m)
-L = 5.0 # wavelength (m)
-ℓ = 200.0 # fluid domain length (m)
+L = 2 # wave length (m)
+k = 2π / L # wave number (rad/m)
+ω = sqrt(g * k * tanh(k * d)) # angular wave frequency (rad/s)
+T = 2π / ω # wave period (s)
 
 # Define numerical model parameters
-M_s = 0 # FSBC Taylor series order (linear wave)
-M_b = 0 # BBC Taylor series order (horizontal bottom)
-ℐ = 200 # number of harmonics
-nΔt = 200 # number of time steps per wave period
-nT = 20 # number of wave periods
+ℐ = 100 # number of harmonics
+nT = 40 # number of simulated wave periods
 nT₀ = 5 # number of ramped wave periods
-N = nΔt * nT # number of time steps
+nΔt = 100 # number of time steps per wave period
+Δt = T / nΔt # time step (s)
+t₀ = 0.0 # initial time (s)
+τ = nT * T # total simulation time (s)
+t = range(start = t₀, stop = τ, step = Δt) # time range
+x = range(0, ℓ, length = 1001) # spatial range
+βₙ = @. - 0.3 * cos(1.5 * x) * (cos(x) - 1) # bottom profile
 
 # Initialize wave problem
-κ, η̂, η̇, β̂, β̇, ϕ̂, ϕ̇, ψ̂, ψ̇, p̂, χ, ξ, ζ, 𝒯, 𝒮, O = init_problem(ℓ, d, ℐ, N)
+p = Problem(ℓ, d, ℐ, t)
+p2 = Problem(ℓ, d, ℐ, t; M_b = 30)
 
 # Define wavemaker motion
-T, Δt, t = linear_wavemaker!(χ, ξ, ζ, H, L, d, nΔt, nT, nT₀, O)
+linear_wavemaker!(p, H, T, L, nT₀)
+linear_wavemaker!(p2, H, T, L, nT₀)
+
+# Define bottom profile
+#bottom_vector!(p2, x, βₙ)
+bottom_slope!(p2, 0.9d)
 
 # Solve wave problem
-solve_problem!(η̂, η̇, ϕ̂, ϕ̇, ψ̂, ψ̇, β̂, β̇, p̂, κ, 𝒯, 𝒮, ℐ, M_s, M_b, Δt, O, N, χ, ξ, ζ, ℓ, d)
+solve_problem!(p)
+solve_problem!(p2)
 
-# Define free-surface elevation
-η₁(x, n) = inverse_fourier_transform(η̂[:, n], κ, x)
-x = range(0, ℓ / 2, length = 500)
-η(n) = η₁.(x, n)
-η₀  = Observable(η(O))
-
-# animate free-surface elevation
-fig = Figure(size = (800, 400))
-ax = Axis(fig[1, 1], xlabel = "x (m)", ylabel = "η (m)")
-lines!(ax, x, η₀, color = :blue, linewidth = 2)
-limits!(ax, 0, ℓ / 2, -H, H)
+# plot results
+η(x) = water_surface(p, x, lastindex(t))
+β(x) = bottom_surface(p, x)
+set_theme!(theme_latexfonts())
+fig = Figure()
+ax = Axis(fig[1, 1], xlabel = L"$x$ (m)", ylabel = L"$z$ (m)")
+band!(ax, x, η.(x), β.(x) .- d, color=:azure) # water bulk
+band!(ax, x, β.(x) .- d, -1.1d, color=:wheat) # bottom bulk
+lines!(ax, x, η.(x), color=:black, linewidth = 0.7) # free surface
+lines!(ax, x, β.(x) .- d, color=:black, linewidth = 0.7) # bottom surface
+limits!(ax, x[1], x[end], -1.1d, d)
 display(fig)
-
-for n in O:10:N
-    η₀[] = η(n)
-    sleep(0.001)
-end

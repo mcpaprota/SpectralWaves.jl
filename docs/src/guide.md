@@ -5,85 +5,127 @@
 ## Instalation
 
 ```julia
-pkg> add SpectralWaves
+pkg> add https://github.com/mcpaprota/SpectralWaves.jl
 julia> using SpectralWaves
 ```
 
 ## Quick start
 
-We begin our introduction with application of the model to linear and regular waves of length ``L`` and height ``H`` propagating in water of constant depth ``d``. We consider one wave along the length of the domain ``\ell``. 
+We begin our introduction with an evolution of a free surface for an initial bump of water in a domain of length `ℓ` and still water depth `d`. We aim to compare free-surface evolution for the case of constant and uneven bottom.
 
-```@example 1
+```@example 0
 using SpectralWaves
 using CairoMakie # plotting package
 
 d = 1.0 # water depth (m)
-H = 0.1 # wave height (m)
-L = 2.0 # wavelength (m)
-ℓ = L # fluid domain length (m) - one wave
+ℓ = 10.0 # fluid domain length (m)
 nothing # hide
 ```
 
 We define a number of numerical model parameters.
 
-```@example 1
-M_s = 0 # FSBC Taylor series order (linear wave)
-M_b = 0 # BBC Taylor series order (horizontal bottom)
-ℐ = 1 # number of harmonics
-nΔt = 200 # number of time increments per wave period
-nT = 1 # number of periods
-N = nΔt * nT # number of time steps
+```@example 0
+ℐ = 40 # number of harmonics
+Δt = 0.01 # time step (s)
+t₀ = 0.0 # initial time (s)
+τ = 2.0 # total simulation time (s)
+t = range(start = t₀, stop = τ, step = Δt) # time range
 nothing # hide
 ```
 
-We initialize wave problem using `init_problem` function.
+We initialize a constant bottom wave problem `p₀` and an uneven bottom wave problem `p₁` using struct [`Problem`](@ref). Please note that we set a bottom nonlinearity parameter `M_b=40` in case of an uneven bottom, while for constant bottom we leave its default (`M_b=0`) value.
 
-```@example 1
-κ, η̂, η̇, β̂, β̇, ϕ̂, ϕ̇, ψ̂, ψ̇, p̂, χ, ξ, ζ, 𝒯, 𝒮, O = init_problem(ℓ, d, ℐ, N)
+```@example 0
+p₀ = Problem(ℓ, d, ℐ, t)
+p₁ = Problem(ℓ, d, ℐ, t; M_b=40)
 nothing # hide
 ```
 
-Initial condition values of ``\hat{\eta}``, ``\dot{\eta}``, ``\hat{\phi}``, and ``\dot{\phi}`` are computed and inserted into vectors `η̂`, `η̇`, `ϕ̂`, `ϕ̇` using `linear_regular_wave!` in-place function, which additionally returns values of a wave period ``T`` and a time increment ``\Delta t``.
+The free surface corresponds to a Gaussian [`surface_bump!`](@ref) of characteristic height `h` and length `λ` and is applied to both problems `p₀` and `p₁`, while we add some bottom variation by applying a Gaussian [`bottom_bump!`](@ref) of characteristic height `h₁` and length `λ₁` to problem `p₁`.
 
-```@example 1
-T, Δt = linear_regular_wave!(η̂, η̇, ϕ̂, ϕ̇, H, L, d, ℐ, nΔt, O)
+```@example 0
+h = 0.4d # surface bump height (m)
+λ = 0.1ℓ # surface bump length (m)
+surface_bump!(p₀, h, λ)
+surface_bump!(p₁, h, λ)
+h₁ = 0.9d # bottom bump height (m)
+λ₁ = 0.5ℓ # bottom bump length (m)
+bottom_bump!(p₁, h₁, λ₁)
 nothing # hide
 ```
 
-Now, we are ready to solve a problem. We use an in-place function `solve_problem!` which stores the values of solution coefficients in vectors `η̂`, `η̇`, `ϕ̂`, `ϕ̇`, `ψ̂`, `ψ̇`. In our case only `η̂` will be further processed.
+We solve both problems. For that, we use an in-place function [`solve_problem!`](@ref).
 
-```@example 1
-solve_problem!(η̂, η̇, ϕ̂, ϕ̇, ψ̂, ψ̇, β̂, β̇, p̂, κ, 𝒯, 𝒮, ℐ, M_s, M_b, Δt, O, N, χ, ξ, ζ, ℓ, d)
+```@example 0
+solve_problem!(p₀; msg_flag=false)
+solve_problem!(p₁; msg_flag=false)
 nothing # hide
 ```
 
-Finally we are ready to plot evolution of absolute, real and imaginary values of a complex wave amplitude `η̂` over time `t` corresponding to one wave period.
+Finally, we may calculate free surface elevation and bottom surface position using [`water_surface`](@ref) and [`bottom_surface`](@ref) functions
 
-```@example 1
-t = range(start = 0, stop = N*Δt, step = Δt) # time vector
-set_theme!(theme_latexfonts()) # use latex fonts
-update_theme!(fontsize=10)
-fig = Figure(size = (400, 300))
-ax = Axis(fig[1, 1], xlabel = L"t/T", ylabel = L"4\hat{\eta}/H", xticks = 0:0.1:N, yticks = -1:0.5:1)
-lines!(ax, t / T, 4 * abs.(η̂[1, O:end]) / H, label = L"|\hat{\eta}|")
-lines!(ax, t / T, 4 * real.(η̂[1, O:end]) / H, label = L"Re(\hat{\eta})")
-lines!(ax, t / T, 4 * imag.(η̂[1, O:end]) / H, label = L"Im(\hat{\eta})")
-axislegend(ax, position = :lb)
-fig
+```@example 0
+η₀(x, n) = water_surface(p₀, x, n)
+η₁(x, n) = water_surface(p₁, x, n)
+β(x) = bottom_surface(p₁, x)
+nothing # hide
+```
+and plot the results for a range of spatial points `x`.
+
+```@example 0
+x = range(start = - ℓ / 2, stop = ℓ / 2, length = 1001) # spatial range
+o₀ = Observable(η₀.(x, firstindex(t))) # set free-surface observable for p₀
+o₁ = Observable(η₁.(x, firstindex(t))) # set free-surface observable for p₁
+title = Observable(L"t = %$(round(t[1], digits=1))\,\mathrm{s}") # set string observable
+set_theme!(theme_latexfonts()) # set latex fonts
+fig = Figure(size = (700, 300)) # initialize a figure
+
+# left plot p₀
+ax0 = Axis(fig[1, 1], 
+        xlabel = L"$x$ (m)", 
+        ylabel = L"$z$ (m)") # define axis with labels
+band!(ax0, x, o₀, -d, 
+        color=:azure) # plot water bulk
+lines!(ax0, x, o₀, 
+        color=:black, 
+        linewidth = 1) # plot free surface line
+band!(ax0, x, -1.1d, - d, 
+        color=:wheat) # plot bottom bulk
+hlines!(ax0, -d, 
+        color=:black, 
+        linewidth = 0.7) # plot bottom line
+limits!(ax0, x[1], x[end], -1.1d, d) # set limits
+
+# right plot p₁
+ax1 = Axis(fig[1, 2], 
+        xlabel = L"$x$ (m)") # define axis with labels
+band!(ax1, x, o₁, β.(x) .-d, 
+        color=:azure) # plot water bulk
+lines!(ax1, x, o₁, 
+        color=:black, 
+        linewidth = 1) # plot free surface line
+band!(ax1, x, β.(x) .- d, - 1.1d, 
+        color=:wheat) # plot bottom bulk
+lines!(ax1, x, β.(x) .- d, 
+        color=:black, 
+        linewidth = 1) # plot bottom line
+limits!(ax1, x[1], x[end], -1.1d, d) # set limits
+Label(fig[0, :], text=title)
+
+# animate free surface
+record(fig, "animation.mp4", 1:lastindex(t);
+        framerate = 30) do n
+    o₀[] = η₀.(x, n)
+    o₁[] = η₁.(x, n)
+    title[] = L"t = %$(round(t[n], digits=1))\,\mathrm{s}"
+end
+nothing # hide
 ```
 
-Now, if we want to plot a time-series of free-surface elevation at some location (e.g. corresponding to the middle of the fluid domain ``x_0 = \ell/2``) ``\eta(t[n], x_0)``, we use an `inverse_fourier_transform` function, like so
-
-```@example 1
-x_0 = ℓ/2
-η(n) = inverse_fourier_transform(η̂[:, n], κ, x_0)
-fig = Figure(size = (400, 300))
-ax = Axis(fig[1, 1], xlabel = L"$t$ (s)", ylabel = L"$\eta$ (m)")
-lines!(ax, t, η.(O:N+O), color = :blue, linewidth = 2)
-limits!(ax, 0, T, -H, H)
-fig
+```@raw html
+<video width="auto" controls autoplay loop>
+<source src="../animation.mp4" type="video/mp4">
+</video>
 ```
 
-```@example 1
-η(O), η(N+O), t
-```
+You can define initial conditions, forcing mechanisms, bottom geometry and its kinematics, on your own following functions listed in the [API](@ref). We are going to add more of them with subsequent updates of the package. Meanwhile go to [the next section](@ref "Examples"), where more examples are shown.

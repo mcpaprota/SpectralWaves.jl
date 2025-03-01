@@ -25,8 +25,28 @@ function convolve(a::Vector{Ta}, b::Vector{Tb}) where {Ta<:Number, Tb<:Number}
     return c
 end
 
+"""
+    convolve_dsp(a::Vector{Ta}, b::Vector{Tb}) where {Ta<:Number, Tb<:Number}
+
+Compute direct convolution of vectors `a` and `b` using DSP package.
+
+# Examples
+```julia-repl
+julia> a = [1, 2]; b = [1, 1]; convolve(a, b)
+3-element Vector{Int64}:
+ 1
+ 3
+ 2
+```
+"""
+function convolve_dsp(a::Vector{Ta}, b::Vector{Tb}) where {Ta<:Number, Tb<:Number}
+    c = DSP.conv(a, b)
+    return c
+end
+
 # infix version of convolve
-Base.:*(a::Vector{<:Number}, b::Vector{<:Number}) = convolve(a, b)
+# Base.:*(a::Vector{<:Number}, b::Vector{<:Number}) = convolve(a, b)
+Base.:*(a::Vector{<:Number}, b::Vector{<:Number}) = convolve_dsp(a, b)
 
 """
     convolution_power(a::Vector{<:Number}, n::Integer)
@@ -168,7 +188,7 @@ function factorial_lookup(n::Integer)
 end
 
 """
-    inverse_fourier_transform(f̂::Vector{<:Number}, ω::AbstractRange{<:Number}, x::Number)
+    inverse_fourier_transform(f̂::Vector{<:Number}, ω::AbstractRange{<:Real}, x::Real)
 
 Compute `f(x)` using expansion amplitudes `f̂` and eigenvalues `ω`.
 
@@ -178,13 +198,13 @@ julia> f̂ = [0.5, 0, 0.5]; ω = -1:1; x = π; inverse_fourier_transform(f̂, ω
 -1.0
 ```
 """
-function inverse_fourier_transform(f̂::Vector{<:Number}, ω::AbstractRange{<:Number}, x::Number)
+function inverse_fourier_transform(f̂::Vector{<:Number}, ω::AbstractRange{<:Real}, x::Real)
     f = real(sum(f̂ .* exp.(im * ω * x)))
     return f
 end
 
 """
-    fourier_transform(f::Vector{<:Number}, ω::Number, x::AbstractRange{<:Number})
+    fourier_transform(f::Vector{<:Number}, ω::Real, x::AbstractRange{<:Real})
 
 Compute `f̂(ω)` using function values `f` at points `x`.
 
@@ -195,7 +215,7 @@ julia> fourier_transform(f, ω, x)
 0.5 + 0.0im
 ```
 """
-function fourier_transform(f::Vector{<:Real}, ω::Number, x::AbstractRange{<:Number})
+function fourier_transform(f::Vector{<:Real}, ω::Real, x::AbstractRange{<:Real})
     k = ones(Integer, length(f))
     k[[1, end]] = [2, 2]
     f̂ = sum(f ./ k .* exp.(-im * ω * x)) * (x[2] - x[1]) / (x[end] - x[1])

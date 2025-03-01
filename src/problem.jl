@@ -1,10 +1,20 @@
-"""
-    init_problem(ℓ::Number, d::Number, ℐ::Integer, N::Integer; O = 4)
+# SPDX-License-Identifier: MIT
 
-Initialize IBVP wave problem corresponding to a fluid domain of length `ℓ` and depth `d`
+"""
+    Problem(ℓ::Number, d::Number, ℐ::Integer, t::AbstractRange{<:Number}; O = 4, M_s = 0, M_b = 0, static_bottom = true)
+
+Construct an IBV Problem object corresponding to a fluid domain of length `ℓ` and depth `d`
 with `ℐ` harmonics and `N` time steps.
 
-Output is a tuple `(η̂, η̇, β̂, β̃, β̇, ϕ̂, ϕ̇, ψ̂, ψ̇, p̂, χ, ξ, ζ, 𝒯, 𝒮, O)`, where:
+Output is a Problem object with fields:
+- `ℓ` is the fluid domain length (m),
+- `d` is the water depth (m),
+- `ℐ` is the number of harmonics,
+- `t` is the time range,
+- `Δt` is the time step (s),
+- `N` is the number of time steps,
+- `O` is the order of the time-stepping scheme,
+- `κ` are wave numbers (rad/m),
 - `η̂` are free-surface elevation amplitudes (m),
 - `η̇` are free-surface vertical velocity amplitudes (m/s),
 - `β̂` are bottom-surface elevation amplitudes (m),
@@ -19,26 +29,61 @@ Output is a tuple `(η̂, η̇, β̂, β̃, β̇, ϕ̂, ϕ̇, ψ̂, ψ̇, p̂, �
 - `ζ` is wavemaker paddle acceleration (m/s²),
 - `𝒯` are hyperbolic tangent lookup values,
 - `𝒮` are hyperbolic secant lookup values,
-- `O` is the order of the time-stepping scheme.
+- `static_bottom` is a boolean flag to indicate if the bottom is static.
 
 """
-function init_problem(ℓ::Number, d::Number, ℐ::Integer, N::Integer; O = 4)
-    κ = 2π / ℓ * (-ℐ:ℐ)
-    η̂ = complex(zeros(2ℐ + 1, N+O))
-    η̇ = complex(zeros(2ℐ + 1, N+O))
-    β̂ = complex(zeros(2ℐ + 1, N+O))
-    β̇ = complex(zeros(2ℐ + 1, N+O))
-    ϕ̂ = complex(zeros(2ℐ + 1, N+O))
-    ϕ̇ = complex(zeros(2ℐ + 1, N+O))
-    ψ̂ = complex(zeros(2ℐ + 1, N+O))
-    ψ̇ = complex(zeros(2ℐ + 1, N+O))
-    p̂ = complex(zeros(2ℐ + 1, N+O))
-    χ = zeros(N+O)
-    ξ = zeros(N+O)
-    ζ = zeros(N+O)
-    𝒯 = tanh.(κ * d)
-    𝒮 = sech.(κ * d)
-    return κ, η̂, η̇, β̂, β̇, ϕ̂, ϕ̇, ψ̂, ψ̇, p̂, χ, ξ, ζ, 𝒯, 𝒮, O
+struct Problem
+    ℓ::Number
+    d::Number
+    ℐ::Integer
+    t::AbstractRange{<:Number}
+    Δt::Number
+    N::Integer
+    O::Integer
+    M_s::Integer
+    M_b::Integer
+    F::Vector{Number}
+    κ::AbstractRange{<:Number}
+    η̂::Matrix{ComplexF64}
+    η̇::Matrix{ComplexF64}
+    β̂::Matrix{ComplexF64}
+    β̇::Matrix{ComplexF64}
+    ϕ̂::Matrix{ComplexF64}
+    ϕ̇::Matrix{ComplexF64}
+    ψ̂::Matrix{ComplexF64}
+    ψ̇::Matrix{ComplexF64}
+    p̂::Matrix{ComplexF64}
+    χ::Vector{Number}
+    ξ::Vector{Number}
+    ζ::Vector{Number}
+    𝒯::Vector{Number}
+    𝒮::Vector{Number}
+    static_bottom::Bool
+    function Problem(ℓ::Number, d::Number, ℐ::Integer, t::AbstractRange{<:Number}; O = 4, M_s = 0, M_b = 0, static_bottom = true)
+        N = length(t) - 1
+        Δt = step(t)
+        F = factorial_lookup(max(M_s, M_b))
+        κ = 2π / ℓ * (-ℐ:ℐ)
+        η̂ = complex(zeros(2ℐ + 1, N+O))
+        η̇ = complex(zeros(2ℐ + 1, N+O))
+        if static_bottom
+            β̂ = complex(zeros(2ℐ + 1, 1))
+        else
+            β̂ = complex(zeros(2ℐ + 1, N+O))
+        end
+        β̇ = complex(zeros(2ℐ + 1, N+O))
+        ϕ̂ = complex(zeros(2ℐ + 1, N+O))
+        ϕ̇ = complex(zeros(2ℐ + 1, N+O))
+        ψ̂ = complex(zeros(2ℐ + 1, N+O))
+        ψ̇ = complex(zeros(2ℐ + 1, N+O))
+        p̂ = complex(zeros(2ℐ + 1, N+O))
+        χ = zeros(N+O)
+        ξ = zeros(N+O)
+        ζ = zeros(N+O)
+        𝒯 = tanh.(κ * d)
+        𝒮 = sech.(κ * d)
+        new(ℓ, d, ℐ, t, Δt, N, O, M_s, M_b, F, κ, η̂, η̇, β̂, β̇, ϕ̂, ϕ̇, ψ̂, ψ̇, p̂, χ, ξ, ζ, 𝒯, 𝒮, static_bottom)
+    end
 end
 
 """

@@ -11,7 +11,7 @@ Modified in-place variables:
 - `w′` are coefficients corresponding to the linear wavemaker term.
 
 """
-function update_bbc_sle!(A′, A″, w′, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, β̂, κ, κ′, ℐ, F, M)
+function update_bbc_sle!(A′, A″, w′, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, β̂, κ, κ′, ℐ, F, M, msg_flag)
     N, _ = convolution_range(0, M, ℐ)
     b̃ = complex(zeros(N))
     b̂ = complex(zeros(N))
@@ -20,6 +20,7 @@ function update_bbc_sle!(A′, A″, w′, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, �
     β̃ = im * κ .* β̂
     w′[:] = (2im * κ′ * β̃ + β̂ ^ 2)
     _, r1 = convolution_range(1, M, ℐ)
+    msg_flag ? progr = Progress(M, barglyphs=BarGlyphs("[=> ]"), color=:black) : nothing
     for m in 0:M-1
         _, r = convolution_range(m, M, ℐ)
         b̃[r] = β̂ ^ m * β̃ / F[m+1]
@@ -28,7 +29,9 @@ function update_bbc_sle!(A′, A″, w′, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, �
         B̂ = toeplitz(b̂[r1])
         A′[:,:] += B̃ .* transpose(Ψ̃′[:, m+1]) - B̂ .* transpose(Ψ̂′[:, m+2]) # SLE constant coefficient matrix
         A″[:,:] += - B̃ .* transpose(Ψ̃″[:, m+1]) + B̂ .* transpose(Ψ̂″[:, m+2]) # SLE coefficient matrix
+        msg_flag && next!(progr)
     end
+    msg_flag && finish!(progr)
     return nothing
 end
 
@@ -100,7 +103,7 @@ end
 
 
 """
-    solve_problem!(η̂, η̇, ϕ̂, ϕ̇, ψ̂, ψ̇, β̂, β̇, p̂, κ, 𝒯, 𝒮, ℐ, M_s, M_b, Δt, O, N, χ, ξ, ζ, ℓ, d; static_bottom=true)
+    solve_problem!(p::Problem; msg_flag = true)
 
 Calculate solution coefficients `η̂`, `η̇`, `ϕ̂`, `ϕ̇`, `ψ̂`, `ψ̇` of the wave problem.
 
@@ -132,20 +135,30 @@ Input variables:
 - `d` is the water depth (m).
 
 Keyword arguments:
-- `static_bottom` is a boolean flag to indicate whether the bottom is static.
+- `static_bottom` is a boolean flag to indicate whether the bottom is static,
+- `msg_flag` is a boolean flag to indicate whether to print progress messages.
 
 """
-function solve_problem!(η̂, η̇, ϕ̂, ϕ̇, ψ̂, ψ̇, β̂, β̇, p̂, κ, 𝒯, 𝒮, ℐ, M_s, M_b, Δt, O, N, χ, ξ, ζ, ℓ, d; static_bottom=true)
+function solve_problem!(p::Problem; msg_flag = true)
+    ℓ, d = p.ℓ, p.d
+    ℐ, Δt, N, O, M_s, M_b, F = p.ℐ, p.Δt, p.N, p.O, p.M_s, p.M_b, p.F
+    ϕ̂, ϕ̇, ψ̂, ψ̇ = p.ϕ̂, p.ϕ̇, p.ψ̂, p.ψ̇
+    η̂, η̇, p̂ = p.η̂, p.η̇, p.p̂
+    β̂, β̇ = p.β̂, p.β̇
+    ξ, ζ = p.ξ, p.ζ
+    κ, 𝒯, 𝒮 = p.κ, p.𝒯, p.𝒮
+    static_bottom = p.static_bottom
     # initialize auxiliary variables
     c_ab, c_am = time_integration_coeffs(O)
-    F = factorial_lookup(max(M_s, M_b))
     κ′ = @.  1 / κ * (κ ≠ 0)
     κ″ = @.  1 / κ^2 * (κ ≠ 0)
     # initialize nonlinear bottom boundary condition if necessary
     if M_b > 0
+        msg_flag && println("Initializing system of equations...")
         A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, w′ = init_nonlinear_bottom_boundary_condition(κ, 𝒯, 𝒮, ℐ, M_b)
         if static_bottom
-            update_bbc_sle!(A′, A″, w′, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, β̂[:, 1], κ, κ′, ℐ, F, M_b)
+            msg_flag && println("Factorization of the system for static bottom...")
+            update_bbc_sle!(A′, A″, w′, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, β̂[:, 1], κ, κ′, ℐ, F, M_b, msg_flag)
             A″ = factorize(A″)
         end
     end
@@ -156,6 +169,8 @@ function solve_problem!(η̂, η̇, ϕ̂, ϕ̇, ψ̂, ψ̇, β̂, β̇, p̂, κ,
         δη̇(n) = nonlinear_kfsbc_correction(η̂[:, n], ϕ̂[:, n], ψ̂[:, n], Φ̂′, Φ̂″, Φ̃′, Φ̃″, κ, κ′, ℐ, F, M_s, ξ[n], ℓ)
         δϕ̇(n) = nonlinear_dfsbc_correction(η̂[:, n], ϕ̂[:, n], ϕ̇[:, n], ψ̂[:, n], ψ̇[:, n], Φ̇′, Φ̇″, Φ̂′, Φ̂″, Φ̃′, Φ̃″, κ′, ℐ, F, M_s, ξ[n], ζ[n], ℓ, d)
     end
+    msg_flag && println("Time marching...")
+    msg_flag ? progress_bar = Progress(N, barglyphs=BarGlyphs("[=> ]"), color=:black, showspeed=true) : nothing
     # start time-marching loop
     for n in O:N+O-1
         j = 0
@@ -168,9 +183,9 @@ function solve_problem!(η̂, η̇, ϕ̂, ϕ̇, ψ̂, ψ̇, β̂, β̇, p̂, κ,
         while j < J
             # apply dynamic free-surface boundary condition
             if M_s == 0
-                @views ϕ̇[:, n] = -g * η̂[:, n] + 2ζ[n] * κ″ / ℓ
+                @views ϕ̇[:, n] = -g * (η̂[:, n] + p̂[:, n]) + 2ζ[n] * κ″ / ℓ
             else
-                @views ϕ̇[:, n] = -g * η̂[:, n] + 2ζ[n] * κ″ / ℓ - δϕ̇(n)
+                @views ϕ̇[:, n] = -g * (η̂[:, n] + p̂[:, n]) + 2ζ[n] * κ″ / ℓ - δϕ̇(n)
             end
             ϕ̇[ℐ+1, n] = -g * η̂[ℐ+1, n] - ζ[n] * (d^2 / ℓ - ℓ / 12)
             # apply Adams-Bashforth predictor
@@ -178,7 +193,7 @@ function solve_problem!(η̂, η̇, ϕ̂, ϕ̇, ψ̂, ψ̇, β̂, β̇, p̂, κ,
             # apply nonlinear bottom boundary condition if necessary
             if M_b > 0
                 if !static_bottom
-                    update_bbc_sle!(A′, A″, w′, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, β̂[:, n+1], κ, κ′, ℐ, F, M_b)
+                    update_bbc_sle!(A′, A″, w′, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, β̂[:, n+1], κ, κ′, ℐ, F, M_b, false)
                 end
                 b = A′ * ϕ̂[:, n+1] + β̇[:, n+1] - ξ[n+1] / ℓ * w′[ℐ+1:3ℐ+1]
                 ψ̂[:, n+1] = A″ \ b
@@ -198,11 +213,18 @@ function solve_problem!(η̂, η̇, ϕ̂, ϕ̇, ψ̂, ψ̇, β̂, β̇, p̂, κ,
                 # apply central difference scheme
                 n == O ? ψ̇[:, n] = ψ̂[:, n+1] / Δt : ψ̇[:, n] = (ψ̂[:, n+1] - ψ̂[:, n-1]) / 2Δt
                 # check simulation blow-up
-                isfinite(norm(η̂[:, n+1])) || return false
+                if !isfinite(norm(η̂[:, n+1]))
+                    msg_flag && finish!(progress_bar)
+                    msg_flag && println("Finished unsuccessfully!")
+                    return false
+                end
             else
                 break
             end
         end
+        msg_flag && next!(progress_bar)
     end
+    msg_flag && finish!(progress_bar)
+    msg_flag && println("Finished successfully!")
     return true
 end
