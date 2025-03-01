@@ -12,7 +12,7 @@ pkg> add https://github.com/mcpaprota/SpectralWaves.jl
 julia> using SteadyWaves
 ```
 
-Currently adding to Julia registry.
+Currently adding to Julia registries.
 
 ## Documentation
 
