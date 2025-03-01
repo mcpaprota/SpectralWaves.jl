@@ -12,6 +12,8 @@ pkg> add https://github.com/mcpaprota/SpectralWaves.jl
 julia> using SteadyWaves
 ```
 
+Currently adding to Julia registry.
+
 ## Documentation
 
 The very first version of documentation is available [here](https://mcpaprota.github.io/SpectralWaves.jl/dev/).
