@@ -14,4 +14,4 @@ julia> using SteadyWaves
 
 ## Documentation
 
-The very first version of documentation is available [here](https://img.shields.io/badge/docs-dev-blue.svg)](https://mcpaprota.github.io/SpectralWaves.jl/dev/) or by clicking the Dev badge.
+The very first version of documentation is available [here](https://mcpaprota.github.io/SpectralWaves.jl/dev/).
