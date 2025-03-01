@@ -51,10 +51,10 @@ linear_regular_wave!(p, H, ω)
 nothing # hide
 ```
 
-Now, we are ready to solve a problem. We use an in-place function [`solve_problem!`](@ref) which stores the values of solution coefficients in vectors `η̂`, `η̇`, `ϕ̂`, `ϕ̇`, `ψ̂`, `ψ̇`. In our case only `η̂` will be further processed.
+Now, we are ready to solve a problem.
 
 ```@example 1
-solve_problem!(p)
+solve_problem!(p; msg_flag=false)
 nothing # hide
 ```
 
@@ -111,7 +111,7 @@ using CairoMakie # plotting package
 L = 5.0 # wavelength (m)
 H = 0.05 # wave height (m)
 d = 1.0 # water depth (m)
-ℓ = 120.0 # fluid domain length (m)
+ℓ = 200.0 # fluid domain length (m)
 nothing # hide
 ```
 
@@ -127,10 +127,10 @@ nothing # hide
 We define a number of numerical model parameters. In order to secure a smooth start of the wavemaker paddle, we define a number of ramped wave periods `nT₀` in addition to a total number of simulated wave periods `nT`.
 
 ```@example 2
-ℐ = 120 # number of harmonics
-nT = 25 # number of simulated wave periods
+ℐ = 600 # number of harmonics
+nT = 30 # number of simulated wave periods
 nT₀ = 3 # number of ramped wave periods
-nΔt = 50 # number of time steps per wave period
+nΔt = 200 # number of time steps per wave period
 Δt = T / nΔt # time step (s)
 t₀ = 0.0 # initial time (s)
 τ = nT * T # total simulation time (s)
@@ -155,7 +155,7 @@ nothing # hide
 The slope of height `h` is introduced using [`bottom_slope!`](@ref) function.
 
 ```@example 2
-h = 0.95d
+h = 0.9d
 bottom_slope!(p, h)
 nothing # hide
 ```
@@ -163,7 +163,7 @@ nothing # hide
 And we solve the problem.
 
 ```@example 2
-solve_problem!(p)
+solve_problem!(p; msg_flag=false)
 nothing # hide
 ```
 
@@ -200,7 +200,7 @@ limits!(ax, x[1], x[end], -1.1d, 2H) # set limits
 
 # animate free surface
 record(fig, "shoaling.mp4", lastindex(t)-nΔt+1:lastindex(t);
-        framerate = 50) do n
+        framerate = nΔt) do n
     η₀[] = η.(x, n)
 end
 nothing # hide
@@ -212,7 +212,15 @@ nothing # hide
 </video>
 ```
 
-## Wave transformation at a step
+Replacing `p = Problem(ℓ, d, ℐ, t; M_b=40)` with `p = Problem(ℓ, d, ℐ, t; M_b=40, M_s=2)` gives a corresponding nonlinear shoaling, which looks like this:
+
+```@raw html
+<video width="auto" controls autoplay loop>
+<source src="../nonlinear_shoaling.mp4" type="video/mp4">
+</video>
+```
+
+## Linear wave transformation at a step
 
 We are modelling linear and regular waves of length `L` and height `H` undergoing a transformation at an underwater step. We apply a linear wavemaker at both sides of the domain, while we consider only a half of the domain of length `ℓ`.
 
@@ -220,10 +228,10 @@ We are modelling linear and regular waves of length `L` and height `H` undergoin
 using SpectralWaves
 using CairoMakie # plotting package
 
-L = 5.0 # wavelength (m)
+L = 10.0 # wavelength (m)
 H = 0.05 # wave height (m)
 d = 1.0 # water depth (m)
-ℓ = 60.0 # fluid domain length (m)
+ℓ = 200.0 # fluid domain length (m)
 nothing # hide
 ```
 
@@ -239,10 +247,10 @@ nothing # hide
 We define a number of numerical model parameters (cf. linear shoaling example).
 
 ```@example 3
-ℐ = 120 # number of harmonics
-nT = 12 # number of simulated wave periods
+ℐ = 400 # number of harmonics
+nT = 16 # number of simulated wave periods
 nT₀ = 3 # number of ramped wave periods
-nΔt = 50 # number of time steps per wave period
+nΔt = 200 # number of time steps per wave period
 Δt = T / nΔt # time step (s)
 t₀ = 0.0 # initial time (s)
 τ = nT * T # total simulation time (s)
@@ -267,7 +275,7 @@ nothing # hide
 The step of height `h` is introduced using [`bottom_step!`](@ref) function.
 
 ```@example 3
-h = 0.8d
+h = 0.6d
 bottom_step!(p, h)
 nothing # hide
 ```
@@ -275,7 +283,7 @@ nothing # hide
 We solve the problem.
 
 ```@example 3
-solve_problem!(p)
+solve_problem!(p; msg_flag=false)
 nothing # hide
 ```
 
@@ -312,7 +320,7 @@ limits!(ax, x[1], x[end], -1.1d, 2H) # set limits
 
 # animate free surface
 record(fig, "step_transformation.mp4", lastindex(t)-nΔt+1:lastindex(t);
-        framerate = 50) do n
+        framerate = nΔt) do n
     η₀[] = η.(x, n)
 end
 nothing # hide
@@ -321,5 +329,13 @@ nothing # hide
 ```@raw html
 <video width="auto" controls autoplay loop>
 <source src="../step_transformation.mp4" type="video/mp4">
+</video>
+```
+
+Again, we may compute nonlinear scenario using `p = Problem(ℓ, d, ℐ, t; M_b=40, M_s=2)`.
+
+```@raw html
+<video width="auto" controls autoplay loop>
+<source src="../nonlinear_step_transformation.mp4" type="video/mp4">
 </video>
 ```

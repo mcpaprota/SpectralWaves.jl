@@ -44,15 +44,15 @@ struct Problem
     M_b::Integer
     F::Vector{Number}
     κ::AbstractRange{<:Number}
-    η̂::Matrix{Complex}
-    η̇::Matrix{Complex}
-    β̂::Matrix{Complex}
-    β̇::Matrix{Complex}
-    ϕ̂::Matrix{Complex}
-    ϕ̇::Matrix{Complex}
-    ψ̂::Matrix{Complex}
-    ψ̇::Matrix{Complex}
-    p̂::Matrix{Complex}
+    η̂::Matrix{ComplexF64}
+    η̇::Matrix{ComplexF64}
+    β̂::Matrix{ComplexF64}
+    β̇::Matrix{ComplexF64}
+    ϕ̂::Matrix{ComplexF64}
+    ϕ̇::Matrix{ComplexF64}
+    ψ̂::Matrix{ComplexF64}
+    ψ̇::Matrix{ComplexF64}
+    p̂::Matrix{ComplexF64}
     χ::Vector{Number}
     ξ::Vector{Number}
     ζ::Vector{Number}

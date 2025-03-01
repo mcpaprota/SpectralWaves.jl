@@ -54,11 +54,11 @@ bottom_bump!(p₁, h₁, λ₁)
 nothing # hide
 ```
 
-We solve both problems.
+We solve both problems. For that, we use an in-place function [`solve_problem!`](@ref).
 
 ```@example 0
-solve_problem!(p₀)
-solve_problem!(p₁)
+solve_problem!(p₀; msg_flag=false)
+solve_problem!(p₁; msg_flag=false)
 nothing # hide
 ```
 
@@ -128,4 +128,4 @@ nothing # hide
 </video>
 ```
 
-Please see the next section for more examples.
+You can define initial conditions, forcing mechanisms, bottom geometry and its kinematics, on your own following functions listed in the [API](@ref). We are going to add more of them with subsequent updates of the package. Meanwhile go to [the next section](@ref "Examples"), where more examples are shown.
