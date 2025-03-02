@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Examples · SpectralWaves.jl</title><meta name="title" content="Examples · SpectralWaves.jl"/><meta property="og:title" content="Examples · SpectralWaves.jl"/><meta property="twitter:title" content="Examples · SpectralWaves.jl"/><meta name="description" content="Documentation for SpectralWaves.jl."/><meta property="og:description" content="Documentation for SpectralWaves.jl."/><meta property="twitter:description" content="Documentation for SpectralWaves.jl."/><meta property="og:url" content="https://mcpaprota.github.io/SpectralWaves.jl/examples/"/><meta property="twitter:url" content="https://mcpaprota.github.io/SpectralWaves.jl/examples/"/><link rel="canonical" href="https://mcpaprota.github.io/SpectralWaves.jl/examples/"/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">SpectralWaves.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><a class="tocitem" href="../guide/">Guide</a></li><li class="is-active"><a class="tocitem" href>Examples</a><ul class="internal"><li><a class="tocitem" href="#Regular-linear-waves"><span>Regular linear waves</span></a></li><li><a class="tocitem" href="#Linear-shoaling"><span>Linear shoaling</span></a></li><li><a class="tocitem" href="#Linear-wave-transformation-at-a-step"><span>Linear wave transformation at a step</span></a></li></ul></li><li><a class="tocitem" href="../api/">API reference</a></li><li><a class="tocitem" href="../references/">References</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Examples</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Examples</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/mcpaprota/SpectralWaves.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/mcpaprota/SpectralWaves.jl/blob/main/docs/src/examples.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Examples"><a class="docs-heading-anchor" href="#Examples">Examples</a><a id="Examples-1"></a><a class="docs-heading-anchor-permalink" href="#Examples" title="Permalink"></a></h1><h2 id="Regular-linear-waves"><a class="docs-heading-anchor" href="#Regular-linear-waves">Regular linear waves</a><a id="Regular-linear-waves-1"></a><a class="docs-heading-anchor-permalink" href="#Regular-linear-waves" title="Permalink"></a></h2><p>We are modelling linear and regular waves of length <code>L</code> and height <code>H</code> propagating in water of constant depth <code>d</code>. We consider one wave along the length of the domain <code>ℓ</code>. </p><pre><code class="language-julia hljs">using SpectralWaves
+using CairoMakie # plotting package
+
+L = 2.0 # wavelength (m)
+H = 0.1 # wave height (m)
+d = 1.0 # water depth (m)
+ℓ = L # fluid domain length (m) - one wave</code></pre><p>We need a wave period <code>T</code>.</p><pre><code class="language-julia hljs">k = 2π / L # wave number (rad/m)
+ω = sqrt(g * k * tanh(k * d)) # angular wave frequency (rad/s)
+T = 2π / ω # wave period (s)</code></pre><p>We define a number of numerical model parameters.</p><pre><code class="language-julia hljs">ℐ = 1 # number of harmonics
+nΔt = 200 # number of time increments per wave period
+Δt = T / nΔt # time step (s)
+nT = 1 # number of periods
+t₀ = 0.0 # initial time (s)
+τ = nT * T # total simulation time (s)
+t = range(start = t₀, stop = τ, step = Δt) # time range</code></pre><p>We initialize wave problem using a struct <a href="../api/#SpectralWaves.Problem"><code>Problem</code></a>.</p><pre><code class="language-julia hljs">p = Problem(ℓ, d, ℐ, t)</code></pre><p>Initial condition values of <span>$\hat{\eta}$</span>, <span>$\dot{\eta}$</span>, <span>$\hat{\phi}$</span>, and <span>$\dot{\phi}$</span> are computed and inserted into vectors <code>η̂</code>, <code>η̇</code>, <code>ϕ̂</code>, <code>ϕ̇</code> using <a href="../api/#SpectralWaves.linear_regular_wave!-Tuple{Problem, Any, Any}"><code>linear_regular_wave!</code></a> in-place function.</p><pre><code class="language-julia hljs">linear_regular_wave!(p, H, ω)</code></pre><p>Now, we are ready to solve a problem.</p><pre><code class="language-julia hljs">solve_problem!(p; msg_flag=false)</code></pre><p>We define a function that calculates free-surface elevation at specified location <code>x</code> and time instant <code>n</code> and velocity components <code>u</code> and <code>w</code> at specified location (<code>x</code>, <code>z</code>) and time instant <code>n</code> using <a href="../api/#SpectralWaves.water_surface-Tuple{Problem, Real, Integer}"><code>water_surface</code></a>, <a href="../api/#SpectralWaves.water_velocity-Tuple{Problem, Real, Real, Integer, Symbol}"><code>water_velocity</code></a> functions. Please note that the last argument to <a href="../api/#SpectralWaves.water_velocity-Tuple{Problem, Real, Real, Integer, Symbol}"><code>water_velocity</code></a> specifies the axis of projection of the velocity vector using symbolic variables <code>:x</code> or  <code>:z</code>.</p><pre><code class="language-julia hljs">η(x, n) = water_surface(p, x, n)
+u(x, z, n) = (z &lt; η(x, n)) * water_velocity(p, x, z, n, :x)
+w(x, z, n) = (z &lt; η(x, n)) * water_velocity(p, x, z, n, :z)
+v(x, z, n) = sqrt.(u(x, z, n)^2 + w(x, z, n)^2)</code></pre><p>We need a grid to present results.</p><pre><code class="language-julia hljs">x = range(start = 0, stop = ℓ, length = 21)
+z = range(start = -d, stop = H, length = 11)</code></pre><p>Finally we are ready to plot results.</p><pre><code class="language-julia hljs">n = 101
+set_theme!(theme_latexfonts()) # set latex fonts
+fig = Figure(size = (700, 300))
+ax = Axis(fig[1, 1], xlabel = L&quot;$x$ (m)&quot;, ylabel = L&quot;$\eta$ (m)&quot;)
+band!(ax, x, η.(x, n), -d,
+        color=:azure) # plot water bulk
+lines!(ax, x, η.(x, n),
+        color=:black,
+        linewidth = 1) # plot free surface
+band!(ax, x, -1.1d, - d,
+        color=:wheat) # plot bottom bulk
+hlines!(ax, -d,
+        color=:black,
+        linewidth = 0.7) # plot bottom line
+arrows!(ax, x, z, u.(x, z&#39;, n), w.(x, z&#39;, n);
+    lengthscale = 0.3,
+    arrowsize = 10 * vec(v.(x, z&#39;, n)/maximum(v.(x, z&#39;, n)))) # plot velocity vectors
+limits!(ax, 0, L, -1.1d, H)
+fig</code></pre><img src="530dd5c6.png" alt="Example block output"/><h2 id="Linear-shoaling"><a class="docs-heading-anchor" href="#Linear-shoaling">Linear shoaling</a><a id="Linear-shoaling-1"></a><a class="docs-heading-anchor-permalink" href="#Linear-shoaling" title="Permalink"></a></h2><p>We are modelling linear and regular waves of length <code>L</code> and height <code>H</code> climbing up a slope. We apply a linear wavemaker at both sides of the domain, while we consider only a half of the domain of length <code>ℓ</code>.</p><pre><code class="language-julia hljs">using SpectralWaves
+using CairoMakie # plotting package
+
+L = 5.0 # wavelength (m)
+H = 0.05 # wave height (m)
+d = 1.0 # water depth (m)
+ℓ = 200.0 # fluid domain length (m)</code></pre><p>Again, we need a wave period <code>T</code>.</p><pre><code class="language-julia hljs">k = 2π / L # wave number (rad/m)
+ω = sqrt(g * k * tanh(k * d)) # angular wave frequency (rad/s)
+T = 2π / ω # wave period (s)</code></pre><p>We define a number of numerical model parameters. In order to secure a smooth start of the wavemaker paddle, we define a number of ramped wave periods <code>nT₀</code> in addition to a total number of simulated wave periods <code>nT</code>.</p><pre><code class="language-julia hljs">ℐ = 600 # number of harmonics
+nT = 30 # number of simulated wave periods
+nT₀ = 3 # number of ramped wave periods
+nΔt = 200 # number of time steps per wave period
+Δt = T / nΔt # time step (s)
+t₀ = 0.0 # initial time (s)
+τ = nT * T # total simulation time (s)
+t = range(start = t₀, stop = τ, step = Δt) # time range</code></pre><p>We initialize wave problem <code>p</code> with <code>M_b=40</code>.</p><pre><code class="language-julia hljs">p = Problem(ℓ, d, ℐ, t; M_b=40)</code></pre><p>We use <a href="../api/#SpectralWaves.linear_wavemaker!-Tuple{Problem, Vararg{Any, 4}}"><code>linear_wavemaker!</code></a> function to define wavemaker paddle motion.</p><pre><code class="language-julia hljs">linear_wavemaker!(p, H, T, L, nT₀)</code></pre><p>The slope of height <code>h</code> is introduced using <a href="../api/#SpectralWaves.bottom_slope!-Tuple{Problem, Any}"><code>bottom_slope!</code></a> function.</p><pre><code class="language-julia hljs">h = 0.9d
+bottom_slope!(p, h)</code></pre><p>And we solve the problem.</p><pre><code class="language-julia hljs">solve_problem!(p; msg_flag=false)</code></pre><p>We calculate free surface elevation and bottom surface position using <a href="../api/#SpectralWaves.water_surface-Tuple{Problem, Real, Integer}"><code>water_surface</code></a> and <a href="../api/#SpectralWaves.bottom_surface"><code>bottom_surface</code></a> functions</p><pre><code class="language-julia hljs">η(x, n) = water_surface(p, x, n)
+β(x) = bottom_surface(p, x)</code></pre><p>and we are ready to animate results and see how the waves shoal.</p><pre><code class="language-julia hljs">x = range(start = 0, stop = ℓ / 3, length = 501) # spatial range
+η₀ = Observable(η.(x, firstindex(t))) # set free-surface observable for p
+set_theme!(theme_latexfonts()) # set latex fonts
+fig = Figure(size = (700, 300)) # initialize a figure
+ax = Axis(fig[1, 1],
+        xlabel = L&quot;$x$ (m)&quot;,
+        ylabel = L&quot;$z$ (m)&quot;) # define axis with labels and title
+band!(ax, x, η₀, β.(x) .-d,
+        color=:azure) # plot water bulk
+lines!(ax, x, η₀,
+        color=:black,
+        linewidth = 1) # plot free surface line
+band!(ax, x, β.(x) .- d, - 1.1d,
+        color=:wheat) # plot bottom bulk
+lines!(ax, x, β.(x) .- d,
+        color=:black,
+        linewidth = 1) # plot bottom line
+limits!(ax, x[1], x[end], -1.1d, 2H) # set limits
+
+# animate free surface
+record(fig, &quot;shoaling.mp4&quot;, lastindex(t)-nΔt+1:lastindex(t);
+        framerate = nΔt) do n
+    η₀[] = η.(x, n)
+end</code></pre><video width="auto" controls autoplay loop>
+<source src="../shoaling.mp4" type="video/mp4">
+</video><p>Replacing <code>p = Problem(ℓ, d, ℐ, t; M_b=40)</code> with <code>p = Problem(ℓ, d, ℐ, t; M_b=40, M_s=2)</code> gives a corresponding nonlinear shoaling, which looks like this:</p><video width="auto" controls autoplay loop>
+<source src="../nonlinear_shoaling.mp4" type="video/mp4">
+</video><h2 id="Linear-wave-transformation-at-a-step"><a class="docs-heading-anchor" href="#Linear-wave-transformation-at-a-step">Linear wave transformation at a step</a><a id="Linear-wave-transformation-at-a-step-1"></a><a class="docs-heading-anchor-permalink" href="#Linear-wave-transformation-at-a-step" title="Permalink"></a></h2><p>We are modelling linear and regular waves of length <code>L</code> and height <code>H</code> undergoing a transformation at an underwater step. We apply a linear wavemaker at both sides of the domain, while we consider only a half of the domain of length <code>ℓ</code>.</p><pre><code class="language-julia hljs">using SpectralWaves
+using CairoMakie # plotting package
+
+L = 10.0 # wavelength (m)
+H = 0.05 # wave height (m)
+d = 1.0 # water depth (m)
+ℓ = 200.0 # fluid domain length (m)</code></pre><p>We need a wave period <code>T</code>.</p><pre><code class="language-julia hljs">k = 2π / L # wave number (rad/m)
+ω = sqrt(g * k * tanh(k * d)) # angular wave frequency (rad/s)
+T = 2π / ω # wave period (s)</code></pre><p>We define a number of numerical model parameters (cf. linear shoaling example).</p><pre><code class="language-julia hljs">ℐ = 400 # number of harmonics
+nT = 16 # number of simulated wave periods
+nT₀ = 3 # number of ramped wave periods
+nΔt = 200 # number of time steps per wave period
+Δt = T / nΔt # time step (s)
+t₀ = 0.0 # initial time (s)
+τ = nT * T # total simulation time (s)
+t = range(start = t₀, stop = τ, step = Δt) # time range</code></pre><p>We initialize wave problem <code>p</code> with <code>M_b=40</code>.</p><pre><code class="language-julia hljs">p = Problem(ℓ, d, ℐ, t; M_b=40)</code></pre><p>We use <a href="../api/#SpectralWaves.linear_wavemaker!-Tuple{Problem, Vararg{Any, 4}}"><code>linear_wavemaker!</code></a> function to define wavemaker paddle motion.</p><pre><code class="language-julia hljs">linear_wavemaker!(p, H, T, L, nT₀)</code></pre><p>The step of height <code>h</code> is introduced using <a href="../api/#SpectralWaves.bottom_step!-Tuple{Problem, Any}"><code>bottom_step!</code></a> function.</p><pre><code class="language-julia hljs">h = 0.6d
+bottom_step!(p, h)</code></pre><p>We solve the problem.</p><pre><code class="language-julia hljs">solve_problem!(p; msg_flag=false)</code></pre><p>We calculate free surface elevation and bottom surface position using <a href="../api/#SpectralWaves.water_surface-Tuple{Problem, Real, Integer}"><code>water_surface</code></a> and <a href="../api/#SpectralWaves.bottom_surface"><code>bottom_surface</code></a> functions</p><pre><code class="language-julia hljs">η(x, n) = water_surface(p, x, n)
+β(x) = bottom_surface(p, x)</code></pre><p>and we animate the results to see how the waves undergo transformation at a step.</p><pre><code class="language-julia hljs">x = range(start = ℓ / 8, stop = 3ℓ / 8, length = 501) # spatial range
+η₀ = Observable(η.(x, firstindex(t))) # set free-surface observable for p
+set_theme!(theme_latexfonts()) # set latex fonts
+fig = Figure(size = (700, 300)) # initialize a figure
+ax = Axis(fig[1, 1],
+        xlabel = L&quot;$x$ (m)&quot;,
+        ylabel = L&quot;$z$ (m)&quot;) # define axis with labels and title
+band!(ax, x, η₀, β.(x) .-d,
+        color=:azure) # plot water bulk
+lines!(ax, x, η₀,
+        color=:black,
+        linewidth = 1) # plot free surface line
+band!(ax, x, β.(x) .- d, - 1.1d,
+        color=:wheat) # plot bottom bulk
+lines!(ax, x, β.(x) .- d,
+        color=:black,
+        linewidth = 1) # plot bottom line
+limits!(ax, x[1], x[end], -1.1d, 2H) # set limits
+
+# animate free surface
+record(fig, &quot;step_transformation.mp4&quot;, lastindex(t)-nΔt+1:lastindex(t);
+        framerate = nΔt) do n
+    η₀[] = η.(x, n)
+end</code></pre><video width="auto" controls autoplay loop>
+<source src="../step_transformation.mp4" type="video/mp4">
+</video><p>Again, we may compute nonlinear scenario using <code>p = Problem(ℓ, d, ℐ, t; M_b=40, M_s=2)</code>.</p><video width="auto" controls autoplay loop>
+<source src="../nonlinear_step_transformation.mp4" type="video/mp4">
+</video></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../guide/">« Guide</a><a class="docs-footer-nextpage" href="../api/">API reference »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.8.1 on <span class="colophon-date" title="Sunday 2 March 2025 09:03">Sunday 2 March 2025</span>. Using Julia version 1.11.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
