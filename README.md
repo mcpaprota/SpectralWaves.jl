@@ -18,7 +18,7 @@ The very first version of documentation is available [here](https://mcpaprota.gi
 
 ## Related packages
 
-Below is a list of packages, which inspired development of [`SpectralWaves.jl`]:
+Below is a list of packages, which inspired development of `SpectralWaves.jl`:
 
 - [`FourierFlows.jl`](https://github.com/FourierFlows/FourierFlows.jl) - Fourier-collocation methods for partial differential equations;
 - [`WaterWaves1D.jl`](https://github.com/WaterWavesModels/WaterWaves1D.jl) - a collection of one-dimensional wave models;
