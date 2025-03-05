@@ -8,11 +8,9 @@ A Julia implementation of a spectral method for nonlinear water waves propagatin
 ## Install
 
 ```julia
-pkg> add https://github.com/mcpaprota/SpectralWaves.jl
+pkg> add SpectralWaves
 julia> using SpectralWaves
 ```
-
-Currently adding to Julia registries.
 
 ## Documentation
 
