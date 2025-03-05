@@ -15,3 +15,11 @@ julia> using SpectralWaves
 ## Documentation
 
 The very first version of documentation is available [here](https://mcpaprota.github.io/SpectralWaves.jl/dev/).
+
+## Related packages
+
+Below is a list of packages, which inspired development of [`SpectralWaves.jl`]:
+
+- [`FourierFlows.jl`](https://github.com/FourierFlows/FourierFlows.jl) - Fourier-collocation methods for partial differential equations;
+- ['WaterWaves1d.jl'](https://github.com/WaterWavesModels/WaterWaves1D.jl) - a collection of one-dimensional wave models;
+- [`Oceananigans.jl`](https://github.com/CliMA/Oceananigans.jl) - solvers for ocean dynamics equations.
