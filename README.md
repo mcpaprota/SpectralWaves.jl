@@ -20,6 +20,7 @@ The very first version of documentation is available [here](https://mcpaprota.gi
 
 Below is a list of packages, which inspired development of `SpectralWaves.jl`:
 
+- [`DSP.jl`](https://github.com/JuliaDSP/DSP.jl) - digital signal processing tools;
 - [`FourierFlows.jl`](https://github.com/FourierFlows/FourierFlows.jl) - Fourier-collocation methods for partial differential equations;
 - [`WaterWaves1D.jl`](https://github.com/WaterWavesModels/WaterWaves1D.jl) - a collection of one-dimensional wave models;
 - [`Oceananigans.jl`](https://github.com/CliMA/Oceananigans.jl) - solvers for ocean dynamics equations.
