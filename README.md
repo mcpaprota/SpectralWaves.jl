@@ -2,6 +2,7 @@
 
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://mcpaprota.github.io/SpectralWaves.jl/dev/)
 [![Build Status](https://github.com/mcpaprota/SpectralWaves.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/mcpaprota/SpectralWaves.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![DOI](https://zenodo.org/badge/909337001.svg)](https://doi.org/10.5281/zenodo.14998246)
 
 A Julia implementation of a spectral method for nonlinear water waves propagating over topography.
 
