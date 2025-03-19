@@ -6,6 +6,9 @@
 
 A Julia implementation of a spectral method for nonlinear water waves propagating over topography.
 
+[!WARNING]  
+There is a bug, which makes some results of nonlinear wave problems inaccurate. We are working on it.
+
 ## Install
 
 ```julia
