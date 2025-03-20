@@ -1,7 +1,7 @@
 name = "SpectralWaves"
 uuid = "1c8cf7b8-223b-484e-98e7-6240f1484c2c"
 authors = ["Maciej Paprota <mapap@ibwpan.gda.pl> and contributors"]
-version = "1.0.3"
+version = "1.0.4"
 
 [deps]
 DSP = "717857b8-e6f2-59f4-9121-6e50c889abd2"
