@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 
 """
-    Problem(ℓ::Real, d::Real, ℐ::Integer, t::AbstractRange{<:Real}; O = 4, M_s = 0, M_b = 0, static_bottom = true)
+    Problem(ℓ::Real, d::Real, ℐ::Integer, t::AbstractRange{Real}; O = 4, M_s = 0, M_b = 0, static_bottom = true)
 
 Construct an IBV Problem object corresponding to a fluid domain of length `ℓ` and depth `d`
 with `ℐ` harmonics and `N` time steps.
