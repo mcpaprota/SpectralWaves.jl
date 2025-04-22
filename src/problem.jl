@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 
 """
-    Problem(ℓ::Number, d::Number, ℐ::Integer, t::AbstractRange{<:Number}; O = 4, M_s = 0, M_b = 0, static_bottom = true)
+    Problem(ℓ::Real, d::Real, ℐ::Integer, t::AbstractRange{<:Real}; O = 4, M_s = 0, M_b = 0, static_bottom = true)
 
 Construct an IBV Problem object corresponding to a fluid domain of length `ℓ` and depth `d`
 with `ℐ` harmonics and `N` time steps.
@@ -33,17 +33,17 @@ Output is a Problem object with fields:
 
 """
 struct Problem
-    ℓ::Number
-    d::Number
+    ℓ::Real
+    d::Real
     ℐ::Integer
-    t::AbstractRange{<:Number}
-    Δt::Number
+    t::AbstractRange{<:Real}
+    Δt::Real
     N::Integer
     O::Integer
     M_s::Integer
     M_b::Integer
-    F::Vector{Number}
-    κ::AbstractRange{<:Number}
+    F::Vector{Real}
+    κ::AbstractRange{<:Real}
     η̂::Matrix{ComplexF64}
     η̇::Matrix{ComplexF64}
     β̂::Matrix{ComplexF64}
@@ -53,13 +53,13 @@ struct Problem
     ψ̂::Matrix{ComplexF64}
     ψ̇::Matrix{ComplexF64}
     p̂::Matrix{ComplexF64}
-    χ::Vector{Number}
-    ξ::Vector{Number}
-    ζ::Vector{Number}
-    𝒯::Vector{Number}
-    𝒮::Vector{Number}
+    χ::Vector{Real}
+    ξ::Vector{Real}
+    ζ::Vector{Real}
+    𝒯::Vector{Real}
+    𝒮::Vector{Real}
     static_bottom::Bool
-    function Problem(ℓ::Number, d::Number, ℐ::Integer, t::AbstractRange{<:Number}; O = 4, M_s = 0, M_b = 0, static_bottom = true)
+    function Problem(ℓ::Real, d::Real, ℐ::Integer, t::AbstractRange{<:Real}; O = 4, M_s = 0, M_b = 0, static_bottom = true)
         N = length(t) - 1
         Δt = step(t)
         F = factorial_lookup(max(M_s, M_b))
