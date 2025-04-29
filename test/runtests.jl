@@ -26,4 +26,37 @@ using Test
     @test SpectralWaves.inverse_fourier_transform([0.5, 0, 0.5], -1:1, π) == -1
     # fourier_transform function test
     @test SpectralWaves.fourier_transform([-1, 0, 1, 0, -1], 1, range(-π, π, length = 5)) == 0.5 + 0.0im
+    # solving Problem test floats
+    ℓ = 1.0
+    d = 1.0
+    ℐ = 1
+    t = range(0, 1, length = 10)
+    O = 4
+    M_s = 0
+    M_b = 0
+    static_bottom = true
+    problem = Problem(ℓ, d, ℐ, t; O = O, M_s = M_s, M_b = M_b, static_bottom = static_bottom)
+    @test solve_problem!(problem; msg_flag = false)
+    # solving Problem test integers and range of floats
+    ℓ = 1
+    d = 1
+    ℐ = 1
+    t = range(0, 1, length = 10)
+    O = 4
+    M_s = 0
+    M_b = 0
+    static_bottom = true
+    problem = Problem(ℓ, d, ℐ, t; O = O, M_s = M_s, M_b = M_b, static_bottom = static_bottom)
+    @test solve_problem!(problem; msg_flag = false)
+    # solving Problem test integers
+    ℓ = 1
+    d = 1
+    ℐ = 1
+    t = 1:10
+    O = 4
+    M_s = 0
+    M_b = 0
+    static_bottom = true
+    problem = Problem(ℓ, d, ℐ, t; O = O, M_s = M_s, M_b = M_b, static_bottom = static_bottom)
+    @test solve_problem!(problem; msg_flag = false)
 end

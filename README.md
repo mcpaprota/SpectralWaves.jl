@@ -17,6 +17,16 @@ julia> using SpectralWaves
 
 The very first version of documentation is available [here](https://mcpaprota.github.io/SpectralWaves.jl/dev/).
 
+## Citation
+Please cite as:
+Maciej Paprota,
+A fully spectral framework for nonlinear water waves propagating over topography,
+Coastal Engineering,
+2025,
+104759,
+ISSN 0378-3839,
+https://doi.org/10.1016/j.coastaleng.2025.104759
+
 ## Related packages
 
 Below is a list of packages, which inspired development of `SpectralWaves.jl`:
