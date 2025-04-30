@@ -22,6 +22,7 @@ Please cite as:
 Maciej Paprota,
 A fully spectral framework for nonlinear water waves propagating over topography,
 Coastal Engineering,
+Volume 200,
 2025,
 104759,
 ISSN 0378-3839,
