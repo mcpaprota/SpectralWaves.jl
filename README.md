@@ -28,6 +28,9 @@ Volume 200,
 ISSN 0378-3839,
 https://doi.org/10.1016/j.coastaleng.2025.104759
 
+The paper is freely available until June, 19, 2025 under this [sharelink](https://authors.elsevier.com/a/1l0cv_8cdlyPzW).
+
+
 ## Related packages
 
 Below is a list of packages, which inspired development of `SpectralWaves.jl`:
