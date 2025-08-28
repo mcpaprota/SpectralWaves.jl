@@ -47,6 +47,39 @@ function linear_wavemaker!(p::Problem, H, T, L, nT₀)
 end
 
 """
+    solitary_wavemaker!(p::Problem, H)
+
+Create solitary wavemaker paddle displacement, velocity, and acceleration for a solitary wave of height `H`.
+Currently, only the argument `H` (solitary wave height) is required.
+"""
+function solitary_wavemaker!(p::Problem, H)
+
+    χ, ξ, ζ = p.χ, p.ξ, p.ζ
+    d, O = p.d, p.O
+    t = p.t
+
+    c = sqrt(g * (d + H))
+    beta = sqrt(3H / d^3)
+    tau = 4 / beta / c * (atanh(0.999) + H / d)
+    S = 4 * sqrt(H * d / 3)
+
+    χ_func(t) = t < tau ? S * tanh(7.6 * (t / tau - 0.5)) : S * tanh(7.6 * (1 - 0.5))
+    ξ_func(t) = t < tau ? S * 7.6 / tau * (1 - tanh(7.6 * (t / tau - 0.5))^2) : S * 7.6 / tau * (1 - tanh(7.6 * (1 - 0.5))^2)
+    ζ_func(t) = t < tau ? -2S * (7.6 / tau)^2 * tanh(7.6 * (t / tau - 0.5)) * (1 - tanh(7.6 * (t / tau - 0.5))^2) : -2 * S * (7.6 / tau)^2 * tanh(7.6 * (1 - 0.5)) * (1 - tanh(7.6 * (1 - 0.5))^2)
+
+    χ[O:end] = χ_func.(t)
+    ξ[O:end] = ξ_func.(t)
+    ζ[O:end] = ζ_func.(t)
+
+    # fill first O - 1 elements with values at O
+    χ[1:O-1] .= χ[O]
+    ξ[1:O-1] .= ξ[O]
+    ζ[1:O-1] .= ζ[O]
+
+return nothing
+end
+
+"""
     surface_bump!(p::Problem, h, λ, x₀ = 0)
 
 Calculate `η̂` coefficients of a problem `p` for a surface bump of height `h` and characteristic length `λ` at position `x₀`.
