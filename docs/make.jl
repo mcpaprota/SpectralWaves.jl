@@ -25,4 +25,5 @@ deploydocs(;
     repo = "github.com/mcpaprota/SpectralWaves.jl.git",
     devbranch = "main",
     versions = ["stable" => "v^", "v#.#", "dev" => "main"],
+    forcepush = true,
 )
