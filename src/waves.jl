@@ -1,8 +1,8 @@
 """
-    linear_regular_wave!(p::Problem, H, L, nΔt)
+    linear_regular_wave!(p::Problem, H, ω)
 
-Calculate initial values of `η̂`, `η̇`, `ϕ̂`, `ϕ̇` for a regular linear wave of height `H`
-and length `L`.
+Initialize `p` with the free-surface elevation, velocity, and potential coefficients
+for a regular linear wave of height `H` and angular frequency `ω` (rad/s).
 """
 function linear_regular_wave!(p::Problem, H, ω)
     η̂, η̇, ϕ̂, ϕ̇ = p.η̂, p.η̇, p.ϕ̂, p.ϕ̇
@@ -20,10 +20,11 @@ function linear_regular_wave!(p::Problem, H, ω)
 end
 
 """
-    linear_wavemaker!(p::Problem, H, L, t₀)
+    linear_wavemaker!(p::Problem, H, T, L, nT₀)
 
 Calculate wavemaker paddle displacement `χ`, velocity `ξ`, and acceleration `ζ`
-for a train of linear waves of height `H` and period `T` and a number of ramped periods `nT₀`.
+for linear waves of height `H`, period `T`, and wavelength `L`. The paddle motion
+is ramped over `nT₀` periods.
 """
 function linear_wavemaker!(p::Problem, H, T, L, nT₀)
     χ, ξ, ζ = p.χ, p.ξ, p.ζ

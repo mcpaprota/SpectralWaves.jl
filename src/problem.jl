@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 
 """
-    Problem(ℓ::Real, d::Real, ℐ::Integer, t::AbstractRange{Real}; O = 4, M_s = 0, M_b = 0, static_bottom = true)
+    Problem(ℓ::Real, d::Real, ℐ::Integer, t::AbstractRange{<:Real}; O = 4, M_s = 0, M_b = 0, static_bottom = true)
 
 Construct an IBV Problem object corresponding to a fluid domain of length `ℓ` and depth `d`
 with `ℐ` harmonics and `N` time steps.
@@ -14,6 +14,9 @@ Output is a Problem object with fields:
 - `Δt` is the time step (s),
 - `N` is the number of time steps,
 - `O` is the order of the time-stepping scheme,
+- `M_s` is the Taylor series order of the nonlinear free-surface boundary condition,
+- `M_b` is the Taylor series order of the nonlinear bottom boundary condition,
+- `F` is a lookup table of factorials used by the nonlinear expansions,
 - `κ` are wave numbers (rad/m),
 - `η̂` are free-surface elevation amplitudes (m),
 - `η̇` are free-surface vertical velocity amplitudes (m/s),
@@ -130,11 +133,13 @@ Initialize expansion coefficients for nonlinear bottom boundary conditions
 for eigenvalues `κ`, hyperbolic tangent `𝒯` and secant `𝒮` values,
 number of harmonics `ℐ` and order of nonlinear expansion `M`.
 
-Output is a tuple `(Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″)`, where:
+Output is a tuple `(A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, w′)`, where:
+- `A′` and `A″` are coefficient matrices for the bottom-boundary linear system,
 - `Ψ̂′` are surface-potential-amplitude dependent expansion coefficients and
 - `Ψ̂″` are bottom-potential-amplitude dependent expansion coefficients for computing bottom velocity potential amplitudes and its vertical gradients,
 - `Ψ̃′` are surface-potential-amplitude dependent expansion coefficients and
-- `Ψ̃″` are bottom-potential-amplitude dependent expansion coefficients for computing bottom horizontal velocity potential amplitudes and its vertical gradients.
+- `Ψ̃″` are bottom-potential-amplitude dependent expansion coefficients for computing bottom horizontal velocity potential amplitudes and its vertical gradients,
+- `w′` contains coefficients for the linear wavemaker term.
 
 """
 function init_nonlinear_bottom_boundary_condition(κ, 𝒯, 𝒮, ℐ, M)

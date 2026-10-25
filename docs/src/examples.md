@@ -64,7 +64,6 @@ We define a function that calculates free-surface elevation at specified locatio
 η(x, n) = water_surface(p, x, n)
 u(x, z, n) = (z < η(x, n)) * water_velocity(p, x, z, n, :x)
 w(x, z, n) = (z < η(x, n)) * water_velocity(p, x, z, n, :z)
-v(x, z, n) = sqrt.(u(x, z, n)^2 + w(x, z, n)^2)
 nothing # hide
 ```
 
@@ -93,16 +92,17 @@ band!(ax, x, -1.1d, - d,
 hlines!(ax, -d, 
         color=:black, 
         linewidth = 0.7) # plot bottom line
-arrows!(ax, x, z, u.(x, z', n), w.(x, z', n); 
+arrows2d!(ax, x, z, u.(x, z', n), w.(x, z', n);
     lengthscale = 0.3,
-    arrowsize = 10 * vec(v.(x, z', n)/maximum(v.(x, z', n)))) # plot velocity vectors
+    tipwidth = 7.5,
+    tiplength = 7.5) # plot velocity vectors
 limits!(ax, 0, L, -1.1d, H)
 fig
 ```
 
-## Linear shoaling 
+## Wave shoaling 
 
-We are modelling linear and regular waves of length `L` and height `H` climbing up a slope. We apply a linear wavemaker at both sides of the domain, while we consider only a half of the domain of length `ℓ`.
+We are modelling regular waves of length `L` and height `H` climbing up a slope. We apply a linear wavemaker at both sides of the domain, while we consider only a half of the domain of length `ℓ`.
 
 ```@example 2
 using SpectralWaves
@@ -138,7 +138,7 @@ t = range(start = t₀, stop = τ, step = Δt) # time range
 nothing # hide
 ```
 
-We initialize wave problem `p` with `M_b=40`.
+We initialize wave problem `p` with `M_b=40` to get linear shoaling.
 
 ```@example 2
 p = Problem(ℓ, d, ℐ, t; M_b=40)
@@ -220,9 +220,9 @@ Replacing `p = Problem(ℓ, d, ℐ, t; M_b=40)` with `p = Problem(ℓ, d, ℐ, t
 </video>
 ```
 
-## Linear wave transformation at a step
+## Wave transformation at a step
 
-We are modelling linear and regular waves of length `L` and height `H` undergoing a transformation at an underwater step. We apply a linear wavemaker at both sides of the domain, while we consider only a half of the domain of length `ℓ`.
+We are modelling regular waves of length `L` and height `H` undergoing a transformation at an underwater step. We apply a linear wavemaker at both sides of the domain, while we consider only a half of the domain of length `ℓ`.
 
 ```@example 3
 using SpectralWaves
@@ -244,7 +244,7 @@ T = 2π / ω # wave period (s)
 nothing # hide
 ```
 
-We define a number of numerical model parameters (cf. linear shoaling example).
+We define a number of numerical model parameters (cf. wave shoaling example).
 
 ```@example 3
 ℐ = 400 # number of harmonics
@@ -258,7 +258,7 @@ t = range(start = t₀, stop = τ, step = Δt) # time range
 nothing # hide
 ```
 
-We initialize wave problem `p` with `M_b=40`.
+We initialize wave problem `p` with `M_b=40` to get linear waves first.
 
 ```@example 3
 p = Problem(ℓ, d, ℐ, t; M_b=40)
