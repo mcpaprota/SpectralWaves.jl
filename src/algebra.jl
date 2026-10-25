@@ -80,7 +80,7 @@ end
 Base.:^(a::Vector{<:Number}, n::Integer) = convolution_power(a, n)
 
 """
-    convolution_range(m::Integral, M::Integral, n::Integer)
+    convolution_range(m::Integer, M::Integer, ℐ::Integer)
 
 Compute range `r` of indices of a central part of convolution vector
 corresponding to the `m`-th order of convolution,

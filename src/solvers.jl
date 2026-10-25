@@ -1,6 +1,6 @@
 
 """
-    update_bbc_sle!(A′, A″, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, w′, β̂, κ, κ′, ℐ, F, M)
+    update_bbc_sle!(A′, A″, w′, Ψ̂′, Ψ̂″, Ψ̃′, Ψ̃″, β̂, κ, κ′, ℐ, F, M, msg_flag)
 
 Compute coefficients `A′`, `A″`, and `w′` for the bottom boundary condition
 system of linear equations (SLE).
@@ -135,8 +135,7 @@ Input variables:
 - `d` is the water depth (m).
 
 Keyword arguments:
-- `static_bottom` is a boolean flag to indicate whether the bottom is static,
-- `msg_flag` is a boolean flag to indicate whether to print progress messages.
+- `msg_flag` controls whether progress messages are printed.
 
 """
 function solve_problem!(p::Problem; msg_flag = true)
