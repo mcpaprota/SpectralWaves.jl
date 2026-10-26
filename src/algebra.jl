@@ -67,6 +67,7 @@ julia> a = [1, 2, 3]; convolution_power(a, 3)
 ```
 """
 function convolution_power(a::Vector{<:Number}, n::Integer)
+    n < 0 && throw(ArgumentError("convolution power must be nonnegative"))
     if n == 0
         return a[1] * 0 + 1
     elseif n == 1

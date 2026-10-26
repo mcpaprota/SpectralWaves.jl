@@ -4,4 +4,5 @@
 /.vscode/
 *.png
 *.mp4
+*.DS_Store
 /data/

@@ -95,6 +95,7 @@ respectively.
 
 """
 function time_integration_coeffs(O::Integer)
+    1 <= O <= 4 || throw(ArgumentError("O must be between 1 and 4"))
     O == 1 && return [1.0], [1.0]
     O == 2 && return [3, -1] / 2, [1, 1] / 2
     O == 3 && return [23, -16, 5] / 12, [5, 8, -1] / 12
