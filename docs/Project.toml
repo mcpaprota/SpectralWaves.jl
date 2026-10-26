@@ -8,4 +8,8 @@ SpectralWaves = "1c8cf7b8-223b-484e-98e7-6240f1484c2c"
 SpectralWaves = {path = ".."}
 
 [compat]
+<<<<<<< HEAD
 CairoMakie = "0.15.16"
+=======
+Documenter = "1.19.0"
+>>>>>>> origin/main
