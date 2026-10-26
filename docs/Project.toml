@@ -6,3 +6,6 @@ SpectralWaves = "1c8cf7b8-223b-484e-98e7-6240f1484c2c"
 
 [sources]
 SpectralWaves = {path = ".."}
+
+[compat]
+Documenter = "1.19.0"
