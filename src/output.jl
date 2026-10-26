@@ -18,7 +18,8 @@ Compute the bottom surface elevation `β` at position `x` and for time instant `
 """
 function bottom_surface(p::Problem, x::Real, n=1)
     β̂, κ = p.β̂, p.κ
-    β = inverse_fourier_transform(β̂[:, n], κ, x)
+    column = p.static_bottom ? 1 : n
+    β = inverse_fourier_transform(β̂[:, column], κ, x)
     return β
 end
 
