@@ -207,7 +207,7 @@ nothing # hide
 ```
 
 ```@raw html
-<video width="auto" controls autoplay loop>
+<video width="auto" autoplay loop>
 <source src="../shoaling.mp4" type="video/mp4">
 </video>
 ```
@@ -215,7 +215,7 @@ nothing # hide
 Replacing `p = Problem(ℓ, d, ℐ, t; M_b=40)` with `p = Problem(ℓ, d, ℐ, t; M_b=40, M_s=2)` gives a corresponding nonlinear shoaling, which looks like this:
 
 ```@raw html
-<video width="auto" controls autoplay loop>
+<video width="auto" autoplay loop>
 <source src="../nonlinear_shoaling.mp4" type="video/mp4">
 </video>
 ```
@@ -327,7 +327,7 @@ nothing # hide
 ```
 
 ```@raw html
-<video width="auto" controls autoplay loop>
+<video width="auto" autoplay loop>
 <source src="../step_transformation.mp4" type="video/mp4">
 </video>
 ```
@@ -335,7 +335,7 @@ nothing # hide
 Again, we may compute nonlinear scenario using `p = Problem(ℓ, d, ℐ, t; M_b=40, M_s=2)`.
 
 ```@raw html
-<video width="auto" controls autoplay loop>
+<video width="auto" autoplay loop>
 <source src="../nonlinear_step_transformation.mp4" type="video/mp4">
 </video>
 ```
@@ -350,8 +350,7 @@ H = 0.1 # wave height (m)
 d = 1.0 # water depth (m)
 ℓ = 100.0 # fluid domain length (m)
 nothing # hide
-```
-We define a number of numerical model parameters.
+```We define a number of numerical model parameters.
 
 ```@example 4
 ℐ = 100 # number of harmonics
