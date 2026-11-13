@@ -48,6 +48,39 @@ function linear_wavemaker!(p::Problem, H, T, L, nT₀)
 end
 
 """
+    solitary_wavemaker!(p::Problem, H; centered = false)
+
+Calculate wavemaker paddle displacement `χ`, velocity `ξ`, and acceleration `ζ`
+for a solitary wave of height `H`.
+"""
+function solitary_wavemaker!(p::Problem, H)
+    χ, ξ, ζ = p.χ, p.ξ, p.ζ
+    d, O, t = p.d, p.O, p.t
+
+    # Goring (1978), Goring and Reichlen (1980) solitary wave parameters
+    c = sqrt(g * (d + H)) # solitary wave celerity
+    beta = sqrt(3 * H / d^3) # wavenumber parameter
+    alpha = atanh(0.999) # cutoff factor
+    tau = 4 / beta / c * (alpha + H / d) # motion duration
+    S = 4 * sqrt(H * d / 3) # total stroke length
+    S₀ = S / 2 # stroke amplitude
+
+    θ(ti) = 2 * alpha * (ti / tau - 0.5)
+
+    # paddle motion profiles
+    χ_func(ti) = ti < tau ? S₀ * (tanh(θ(ti)) - tanh(-alpha)) : S₀ * (tanh(alpha) - tanh(-alpha))
+    ξ_func(ti) = ti < tau ? S₀ * (2 * alpha / tau) * (1 - tanh(θ(ti))^2) : 0.0
+    ζ_func(ti) = ti < tau ? -2 * S₀ * (2 * alpha / tau)^2 * tanh(θ(ti)) * (1 - tanh(θ(ti))^2) : 0.0
+
+    # assign paddle motion to problem
+    χ[O:end] = χ_func.(t)
+    ξ[O:end] = ξ_func.(t)
+    ζ[O:end] = ζ_func.(t)
+
+    return nothing
+end
+
+"""
     surface_bump!(p::Problem, h, λ, x₀ = 0)
 
 Calculate `η̂` coefficients of a problem `p` for a surface bump of height `h` and characteristic length `λ` at position `x₀`.

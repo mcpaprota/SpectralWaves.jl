@@ -126,6 +126,14 @@ end
     linear_wavemaker!(pw, 0.1, 1.0, 2.0, 1)
     @test pw.χ[pw.O] == 0
     @test any(!iszero, pw.ξ) && any(!iszero, pw.ζ)
+
+    H = 0.1
+    ps = Problem(ℓ, d, 4, range(0, 20, step = 0.1))
+    @test solitary_wavemaker!(ps, H) === nothing
+    @test ps.χ[ps.O] == 0
+    @test ps.χ[end] ≈ 4 * sqrt(H * d / 3) rtol = 0.002
+    @test ps.ξ[end] == 0 && ps.ζ[end] == 0
+    @test any(!iszero, ps.ξ) && any(!iszero, ps.ζ)
 end
 
 @testset "Linear solve with nonlinear orders" begin

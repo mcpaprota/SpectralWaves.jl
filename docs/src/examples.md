@@ -339,3 +339,138 @@ Again, we may compute nonlinear scenario using `p = Problem(ℓ, d, ℐ, t; M_b=
 <source src="../nonlinear_step_transformation.mp4" type="video/mp4">
 </video>
 ```
+## Solitary wave propagation
+We are modeling a solitary wave of height `H` propagating in water of constant depth `d` using a half of a domain of length `ℓ`.
+
+```@example 4
+using SpectralWaves
+using CairoMakie # plotting package
+
+H = 0.1 # wave height (m)
+d = 1.0 # water depth (m)
+ℓ = 100.0 # fluid domain length (m)
+nothing # hide
+```
+We define a number of numerical model parameters.
+
+```@example 4
+ℐ = 100 # number of harmonics
+Δt = 0.01 # time step (s)
+t₀ = 0.0 # initial time (s)
+τ = 15.0 # total simulation time (s)
+t = range(start = t₀, stop = τ, step = Δt) # time range
+nothing # hide
+```
+
+We initialize the wave problem `p` with `M_s=4` to account for the nonlinearity of a solitary wave.
+
+```@example 4
+p = Problem(ℓ, d, ℐ, t; M_s=4)
+nothing # hide
+```
+
+We use [`solitary_wavemaker!`](@ref) function to define wavemaker paddle motion.
+
+```@example 4
+solitary_wavemaker!(p, H)
+nothing # hide
+```
+
+We solve the problem.
+
+```@example 4
+solve_problem!(p; msg_flag=false)
+nothing # hide
+```
+
+We calculate free surface elevation and bottom surface position using [`water_surface`](@ref) and [`bottom_surface`](@ref) functions
+
+```@example 4
+η(x, n) = water_surface(p, x, n)
+β(x) = bottom_surface(p, x)
+nothing # hide
+```
+
+and we plot the resultant solitary profile for time instant `n`.
+
+```@example 4
+n = length(t) # last time instant
+x = range(start = 0, stop = ℓ / 2, length = 501) # spatial range
+set_theme!(theme_latexfonts()) # set latex fonts
+fig = Figure(size = (700, 300)) # initialize a figure
+ax = Axis(fig[1, 1], 
+        xlabel = L"$x$ (m)", 
+        ylabel = L"$z$ (m)") # define axis with labels and title
+band!(ax, x, η.(x, n), β.(x) .-d, 
+        color=:azure) # plot water bulk
+lines!(ax, x, η.(x, n), 
+        color=:black, 
+        linewidth = 1) # plot free surface line
+band!(ax, x, β.(x) .- d, - 1.1d, 
+        color=:wheat) # plot bottom bulk
+lines!(ax, x, β.(x) .- d, 
+        color=:black, 
+        linewidth = 1) # plot bottom line
+limits!(ax, x[1], x[end], -1.1d, 2H) # set limits
+fig
+```
+
+Now we can easily introduce a step and see how the solitary wave interacts with modified bottom. First we define a new problem `pₛ` with `M_b=40` using previous parameters.
+
+```@example 4
+pₛ = Problem(ℓ, d, ℐ, t; M_s=4, M_b=40)
+nothing # hide
+```
+
+The step of height `h` is introduced using [`bottom_step!`](@ref) function.
+
+```@example 4
+h = 0.5d
+bottom_step!(pₛ, h)
+nothing # hide
+```
+Again, we use [`solitary_wavemaker!`](@ref) function to define wavemaker paddle motion.
+
+```@example 4
+solitary_wavemaker!(pₛ, H)
+nothing # hide
+```
+
+We solve the problem.
+
+```@example 4
+solve_problem!(pₛ; msg_flag=false)
+nothing # hide
+```
+
+We calculate free surface elevation and bottom surface position using [`water_surface`](@ref) and [`bottom_surface`](@ref) functions
+
+```@example 4
+η(x, n) = water_surface(pₛ, x, n)
+β(x) = bottom_surface(pₛ, x)
+nothing # hide
+```
+
+and we plot the resultant solitary profile for time instant `n`.
+
+```@example 4
+n = length(t) # last time instant
+x = range(start = 0, stop = ℓ / 2, length = 501) # spatial range
+set_theme!(theme_latexfonts()) # set latex fonts
+fig = Figure(size = (700, 300)) # initialize a figure
+ax = Axis(fig[1, 1], 
+        xlabel = L"$x$ (m)", 
+        ylabel = L"$z$ (m)") # define axis with labels and title
+band!(ax, x, η.(x, n), β.(x) .-d, 
+        color=:azure) # plot water bulk
+lines!(ax, x, η.(x, n), 
+        color=:black, 
+        linewidth = 1) # plot free surface line
+band!(ax, x, β.(x) .- d, - 1.1d, 
+        color=:wheat) # plot bottom bulk
+lines!(ax, x, β.(x) .- d, 
+        color=:black, 
+        linewidth = 1) # plot bottom line
+limits!(ax, x[1], x[end], -1.1d, 2H) # set limits
+fig
+```
