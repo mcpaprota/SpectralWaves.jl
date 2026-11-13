@@ -16,7 +16,7 @@ julia> using SpectralWaves
 
 ## Documentation
 
-The very first version of documentation is available [here](https://mcpaprota.github.io/SpectralWaves.jl/dev/).
+The most recent version of documentation is available under [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://mcpaprota.github.io/SpectralWaves.jl/dev/).
 
 ## Citation
 Please cite as:
@@ -28,9 +28,6 @@ Volume 200,
 104759,
 ISSN 0378-3839,
 https://doi.org/10.1016/j.coastaleng.2025.104759
-
-The paper is freely available until June, 19, 2025 under this [sharelink](https://authors.elsevier.com/a/1l0cv_8cdlyPzW).
-
 
 ## Related packages
 
