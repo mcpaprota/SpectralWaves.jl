@@ -123,7 +123,7 @@ nothing # hide
 ```
 
 ```@raw html
-<video width="auto" controls autoplay loop>
+<video width="auto" autoplay loop>
 <source src="../animation.mp4" type="video/mp4">
 </video>
 ```
